@@ -774,7 +774,15 @@ async function saveRecord(){
   document.getElementById('ocrLabel').textContent='🔍 라벨 텍스트 분석 중...';
   document.getElementById('ocrProgress').textContent='첫 번째 사진 처리 중';
 
-  const newText=await runOCR(selectedFiles[0].dataUrl);
+  // 모든 이미지 OCR
+  let allTexts=[];
+  for(let i=0;i<selectedFiles.length;i++){
+    document.getElementById('ocrLabel').textContent=`🔍 라벨 텍스트 분석 중... (${i+1}/${selectedFiles.length}장)`;
+    document.getElementById('ocrProgress').textContent='';
+    const t=await runOCR(selectedFiles[i].dataUrl);
+    if(t)allTexts.push(t);
+  }
+  const newText=allTexts.join('\n---\n');
   overlay.classList.remove('show');
   saveBtn.disabled=false;
 
@@ -854,7 +862,8 @@ function doSave(newRecord,bpcsCode,newText,imageDataUrl){
     bpcsName:newRecord.bpcsName,
     date:newRecord.date,
     po:newRecord.po,
-    imageDataUrl,
+    imageDataUrl:newRecord.photos[0],
+    allImages:newRecord.photos,
     ocrText:newText,
     savedAt:newRecord.savedAt
   });
@@ -879,7 +888,7 @@ function renderRecords(){
       <div class="record-info">
         <div class="record-po">PO# ${r.po}</div>
         <div class="record-meta">${r.date} · ${r.bpcs}${r.bpcsName?' · '+r.bpcsName.substring(0,16)+'…':''}</div>
-        <div class="record-meta">사진 ${r.photos?r.photos.length:0}장${r.ocrText?' · OCR ✓':''}</div>
+        <div class="record-meta">사진 ${r.photos?r.photos.length:0}장${r.ocrText?` · OCR ✓ (${r.photos.length}장 분석)`:''}</div>
       </div>
       <span class="badge">입고</span>
     </div>`).join('');
