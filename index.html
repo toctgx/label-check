@@ -541,25 +541,29 @@ async function triggerCompare(){
     newThumbs.innerHTML=selectedFiles.map(f=>`<img src="${f.dataUrl}"/>`).join('');
   }
 
-  // OCR 시작
+  // 저장 버튼 즉시 활성화 (OCR과 무관)
+  document.getElementById('saveBtn').disabled=false;
+
+  // OCR 백그라운드 실행
   const ocrSt=document.getElementById('ocrStatus');
   const ocrTxt=document.getElementById('ocrStatusText');
   const diffSec=document.getElementById('diffSection');
   ocrSt.style.display='flex';
   diffSec.style.display='none';
-  document.getElementById('saveBtn').disabled=true;
 
   let allTexts=[];
   for(let i=0;i<selectedFiles.length;i++){
     if(ocrAborted)return;
     ocrTxt.textContent=`OCR 분석 중... (${i+1}/${selectedFiles.length}장)`;
     const t=await runOCR(selectedFiles[i].dataUrl,(p)=>{
-      ocrTxt.textContent=`OCR 분석 중... (${i+1}/${selectedFiles.length}장) ${Math.round(p*100)}%`;
+      if(!ocrAborted)ocrTxt.textContent=`OCR 분석 중... (${i+1}/${selectedFiles.length}장) ${Math.round(p*100)}%`;
     });
+    if(ocrAborted)return;
     if(t)allTexts.push(t);
   }
 
   const newText=allTexts.join('\n---\n');
+  pendingOcrText=newText;
 
   // diff 계산
   ocrSt.style.display='none';
@@ -586,11 +590,6 @@ async function triggerCompare(){
       diffSec.innerHTML=html;
     }
   }
-
-  // 저장 가능하게
-  document.getElementById('saveBtn').disabled=false;
-  // pendingOcr에 저장
-  pendingOcrText=newText;
 }
 
 let pendingOcrText='';
