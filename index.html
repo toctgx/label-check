@@ -1,45 +1,42 @@
 <!DOCTYPE html>
 <html lang="ko" data-theme="dark">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Label Check</title>
   <script src="https://unpkg.com/tesseract.js@4.1.1/dist/tesseract.min.js"></script>
   <style>
-    :root[data-theme="dark"] {
-      --bg:#0e0e0f; --surface:#1a1a1d; --surface2:#242428; --border:#2e2e33;
-      --text-primary:#f0f0f0; --text-secondary:#888; --text-muted:#555;
-      --accent:#4f8ef7; --accent-soft:#1a2a45;
-      --input-bg:#111114; --thumb-bg:#2a2a2e;
-      --btn-bg:#f0f0f0; --btn-text:#0e0e0f;
-      --shadow:0 2px 16px rgba(0,0,0,0.4);
-      --upload-hover:#14213a;
-      --dropdown-bg:#1e1e22; --dropdown-hover:#2a2a30;
-      --diff-add:#1a3a1a; --diff-add-text:#6fcf5a;
-      --diff-del:#3a1a1a; --diff-del-text:#f08080;
-      --diff-chg:#2a2a10; --diff-chg-text:#f0c060;
+    :root[data-theme="dark"]{
+      --bg:#0e0e0f;--surface:#1a1a1d;--surface2:#242428;--border:#2e2e33;
+      --text-primary:#f0f0f0;--text-secondary:#888;--text-muted:#555;
+      --accent:#4f8ef7;--accent-soft:#1a2a45;
+      --input-bg:#111114;--thumb-bg:#2a2a2e;
+      --btn-bg:#f0f0f0;--btn-text:#0e0e0f;
+      --shadow:0 2px 16px rgba(0,0,0,.4);--upload-hover:#14213a;
+      --dropdown-bg:#1e1e22;--dropdown-hover:#2a2a30;
+      --diff-add:#1a3a1a;--diff-add-text:#6fcf5a;
+      --diff-del:#3a1a1a;--diff-del-text:#f08080;
+      --prev-border:#2e2e33;--new-border:#4f8ef7;
     }
-    :root[data-theme="light"] {
-      --bg:#f5f5f0; --surface:#fff; --surface2:#fafafa; --border:#e8e8e8;
-      --text-primary:#1a1a1a; --text-secondary:#555; --text-muted:#aaa;
-      --accent:#4a90e2; --accent-soft:#f0f6ff;
-      --input-bg:#fafafa; --thumb-bg:#f0f0f0;
-      --btn-bg:#1a1a1a; --btn-text:#fff;
-      --shadow:0 2px 12px rgba(0,0,0,0.06);
-      --upload-hover:#f0f6ff;
-      --dropdown-bg:#fff; --dropdown-hover:#f5f5f5;
-      --diff-add:#e8fae8; --diff-add-text:#1a6e10;
-      --diff-del:#fae8e8; --diff-del-text:#a02020;
-      --diff-chg:#faf8e0; --diff-chg-text:#7a6000;
+    :root[data-theme="light"]{
+      --bg:#f5f5f0;--surface:#fff;--surface2:#fafafa;--border:#e8e8e8;
+      --text-primary:#1a1a1a;--text-secondary:#555;--text-muted:#aaa;
+      --accent:#4a90e2;--accent-soft:#f0f6ff;
+      --input-bg:#fafafa;--thumb-bg:#f0f0f0;
+      --btn-bg:#1a1a1a;--btn-text:#fff;
+      --shadow:0 2px 12px rgba(0,0,0,.06);--upload-hover:#f0f6ff;
+      --dropdown-bg:#fff;--dropdown-hover:#f5f5f5;
+      --diff-add:#e8fae8;--diff-add-text:#1a6e10;
+      --diff-del:#fae8e8;--diff-del-text:#a02020;
+      --prev-border:#e8e8e8;--new-border:#4a90e2;
     }
-
     *{box-sizing:border-box;margin:0;padding:0;}
     body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px 16px 48px;transition:background .2s;}
 
     header{width:100%;max-width:480px;margin-bottom:20px;display:flex;align-items:flex-start;justify-content:space-between;}
-    header .titles h1{font-size:20px;font-weight:700;color:var(--text-primary);letter-spacing:-.5px;}
-    header .titles p{font-size:13px;color:var(--text-muted);margin-top:4px;}
-    .theme-toggle{background:var(--surface);border:1.5px solid var(--border);border-radius:20px;padding:6px 12px;font-size:13px;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;flex-shrink:0;margin-top:2px;}
+    header h1{font-size:20px;font-weight:700;color:var(--text-primary);letter-spacing:-.5px;}
+    header p{font-size:13px;color:var(--text-muted);margin-top:4px;}
+    .theme-toggle{background:var(--surface);border:1.5px solid var(--border);border-radius:20px;padding:6px 12px;font-size:13px;color:var(--text-secondary);cursor:pointer;flex-shrink:0;margin-top:2px;transition:all .15s;}
     .theme-toggle:hover{border-color:var(--accent);color:var(--accent);}
 
     .tab-bar{width:100%;max-width:480px;display:flex;gap:8px;background:var(--surface);border-radius:14px;padding:5px;margin-bottom:16px;border:1px solid var(--border);}
@@ -48,113 +45,117 @@
     .tab-panel{display:none;width:100%;}
     .tab-panel.active{display:contents;}
 
-    .card{background:var(--surface);border-radius:16px;padding:20px;width:100%;max-width:480px;box-shadow:var(--shadow);margin-bottom:16px;border:1px solid var(--border);transition:background .2s,border-color .2s;}
+    .card{background:var(--surface);border-radius:16px;padding:20px;width:100%;max-width:480px;box-shadow:var(--shadow);margin-bottom:16px;border:1px solid var(--border);}
     .section-title{font-size:11px;font-weight:600;color:var(--text-muted);letter-spacing:.8px;text-transform:uppercase;margin-bottom:14px;}
     .field{margin-bottom:16px;} .field:last-child{margin-bottom:0;}
     label{display:block;font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:6px;}
     input[type="text"],input[type="date"]{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;color:var(--text-primary);background:var(--input-bg);transition:border-color .15s;outline:none;-webkit-appearance:none;}
     input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(.5);}
     [data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(.8);}
-    input[type="text"]:focus,input[type="date"]:focus{border-color:var(--accent);}
+    input:focus{border-color:var(--accent);}
 
+    /* BPCS */
     .bpcs-wrap{position:relative;}
-    .bpcs-input-row{display:flex;gap:8px;align-items:center;}
-    .bpcs-input-row input[type="text"]{flex:1;}
-    .bpcs-clear-btn{width:34px;height:44px;flex-shrink:0;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;color:var(--text-muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .15s;}
-    .bpcs-clear-btn:hover{border-color:var(--accent);color:var(--accent);}
+    .bpcs-row{display:flex;gap:8px;align-items:center;}
+    .bpcs-row input{flex:1;}
+    .bpcs-clear{width:34px;height:44px;flex-shrink:0;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;color:var(--text-muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+    .bpcs-clear:hover{border-color:var(--accent);color:var(--accent);}
     .bpcs-dropdown{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--dropdown-bg);border:1.5px solid var(--accent);border-radius:12px;max-height:240px;overflow-y:auto;z-index:100;box-shadow:0 8px 24px rgba(0,0,0,.3);display:none;}
     .bpcs-dropdown.open{display:block;}
     .bpcs-item{padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .1s;}
     .bpcs-item:last-child{border-bottom:none;}
-    .bpcs-item:hover,.bpcs-item.active{background:var(--dropdown-hover);}
-    .bpcs-item .bpcs-code{font-size:13px;font-weight:700;color:var(--accent);}
-    .bpcs-item .bpcs-name{font-size:12px;color:var(--text-secondary);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .bpcs-highlight{color:var(--accent);font-weight:700;}
+    .bpcs-item:hover,.bpcs-item.hi{background:var(--dropdown-hover);}
+    .bpcs-code{font-size:13px;font-weight:700;color:var(--accent);}
+    .bpcs-name{font-size:12px;color:var(--text-secondary);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .hl{color:var(--accent);font-weight:700;}
     .bpcs-empty{padding:16px 14px;font-size:13px;color:var(--text-muted);text-align:center;}
-    .bpcs-selected-tag{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:4px 10px;background:var(--accent-soft);border:1px solid var(--accent);border-radius:20px;font-size:12px;color:var(--accent);font-weight:600;}
+    .bpcs-tag{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:4px 10px;background:var(--accent-soft);border:1px solid var(--accent);border-radius:20px;font-size:12px;color:var(--accent);font-weight:600;}
 
-    .upload-zone{border:2px dashed var(--border);border-radius:12px;padding:24px 16px;text-align:center;cursor:pointer;background:var(--input-bg);transition:border-color .15s,background .15s;position:relative;}
+    /* 업로드 */
+    .upload-zone{border:2px dashed var(--border);border-radius:12px;padding:20px 16px;text-align:center;cursor:pointer;background:var(--input-bg);transition:border-color .15s,background .15s;position:relative;}
     .upload-zone:hover,.upload-zone.drag-over{border-color:var(--accent);background:var(--upload-hover);}
     .upload-zone input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
-    .upload-icon{font-size:32px;margin-bottom:8px;}
+    .upload-icon{font-size:28px;margin-bottom:6px;}
     .upload-hint{font-size:13px;color:var(--text-muted);line-height:1.5;}
     .upload-hint strong{color:var(--accent);font-weight:600;}
-    .preview-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;}
-    .preview-item{position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;background:var(--thumb-bg);}
-    .preview-item img{width:100%;height:100%;object-fit:cover;}
-    .preview-item .remove-btn{position:absolute;top:4px;right:4px;width:20px;height:20px;background:rgba(0,0,0,.6);border:none;border-radius:50%;color:#fff;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 
-    .submit-btn{width:100%;max-width:480px;padding:16px;background:var(--btn-bg);color:var(--btn-text);border:none;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;letter-spacing:-.2px;transition:opacity .15s,transform .1s;}
-    .submit-btn:hover{opacity:.85;}
-    .submit-btn:active{transform:scale(.98);}
-    .submit-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+    /* ── 비교 카드 ── */
+    .compare-card{background:var(--surface);border-radius:16px;padding:16px;width:100%;max-width:480px;box-shadow:var(--shadow);margin-bottom:16px;border:1px solid var(--border);display:none;}
+    .compare-card.show{display:block;}
+    .compare-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+    .compare-title{font-size:13px;font-weight:700;color:var(--text-primary);}
+    .compare-status{font-size:12px;color:var(--text-muted);}
 
-    /* OCR 진행 오버레이 */
-    .ocr-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;display:none;}
-    .ocr-overlay.show{display:flex;}
-    .ocr-spinner{width:48px;height:48px;border:4px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
+    .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+    .compare-side{border-radius:10px;overflow:hidden;border:2px solid var(--prev-border);position:relative;}
+    .compare-side.new-side{border-color:var(--new-border);}
+    .compare-side img{width:100%;aspect-ratio:1;object-fit:cover;display:block;}
+    .compare-side-label{position:absolute;bottom:0;left:0;right:0;padding:6px 8px;font-size:11px;font-weight:700;text-align:center;}
+    .compare-side .prev-label{background:rgba(0,0,0,.55);color:#ccc;}
+    .compare-side .new-label{background:rgba(79,142,247,.7);color:#fff;}
+    .compare-empty{width:100%;aspect-ratio:1;background:var(--thumb-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;}
+    .compare-empty span{font-size:28px;}
+    .compare-empty p{font-size:11px;color:var(--text-muted);}
+
+    /* 다중 썸네일 */
+    .new-thumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;width:100%;aspect-ratio:1;}
+    .new-thumbs img{width:100%;height:100%;object-fit:cover;display:block;}
+    .new-thumbs.single img{aspect-ratio:1;}
+
+    /* OCR 상태 */
+    .ocr-status{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--surface2);border-radius:10px;margin-bottom:10px;}
+    .ocr-spinner{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;}
     @keyframes spin{to{transform:rotate(360deg);}}
-    .ocr-label{color:#fff;font-size:15px;font-weight:600;}
-    .ocr-progress{color:#aaa;font-size:13px;}
+    .ocr-status-text{font-size:13px;color:var(--text-secondary);flex:1;}
+    .ocr-done{color:var(--accent);}
 
-    /* 변경사항 모달 */
-    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:600;display:flex;align-items:flex-end;justify-content:center;display:none;}
-    .modal-backdrop.show{display:flex;}
-    .modal{background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-width:480px;max-height:80vh;overflow-y:auto;padding:24px 20px 32px;}
-    .modal-header{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
-    .modal-icon{font-size:28px;}
-    .modal-title{font-size:17px;font-weight:700;color:var(--text-primary);}
-    .modal-sub{font-size:13px;color:var(--text-muted);margin-top:2px;}
-    .diff-block{margin-bottom:12px;}
+    /* diff 결과 */
+    .diff-section{margin-top:4px;}
     .diff-label{font-size:11px;font-weight:600;color:var(--text-muted);letter-spacing:.6px;text-transform:uppercase;margin-bottom:6px;}
-    .diff-line{font-size:13px;font-family:'SF Mono',monospace;padding:6px 10px;border-radius:6px;margin-bottom:3px;line-height:1.5;word-break:break-all;}
+    .diff-line{font-size:12px;font-family:'SF Mono',monospace;padding:5px 10px;border-radius:6px;margin-bottom:3px;line-height:1.5;word-break:break-all;}
     .diff-line.add{background:var(--diff-add);color:var(--diff-add-text);}
     .diff-line.del{background:var(--diff-del);color:var(--diff-del-text);}
     .diff-line.same{background:var(--surface2);color:var(--text-secondary);}
-    .modal-actions{display:flex;gap:8px;margin-top:20px;}
-    .modal-btn{flex:1;padding:13px;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;transition:opacity .15s;}
-    .modal-btn.primary{background:var(--accent);color:#fff;}
-    .modal-btn.secondary{background:var(--surface2);color:var(--text-primary);border:1.5px solid var(--border);}
-    .modal-btn:hover{opacity:.85;}
+    .diff-ok{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--diff-add);border-radius:10px;font-size:13px;font-weight:600;color:var(--diff-add-text);}
 
-    /* 최신 이미지 뱃지 */
-    .latest-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;background:var(--accent-soft);border:1px solid var(--accent);border-radius:20px;font-size:11px;font-weight:600;color:var(--accent);}
-    .latest-info{background:var(--surface2);border-radius:10px;padding:10px 12px;margin-top:10px;font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:10px;}
-    .latest-info img{width:40px;height:40px;border-radius:6px;object-fit:cover;flex-shrink:0;}
-    .latest-info-text{flex:1;min-width:0;}
+    /* 버튼 */
+    .submit-btn{width:100%;max-width:480px;padding:16px;background:var(--btn-bg);color:var(--btn-text);border:none;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;transition:opacity .15s,transform .1s;}
+    .submit-btn:hover{opacity:.85;}
+    .submit-btn:active{transform:scale(.98);}
+    .submit-btn:disabled{opacity:.35;cursor:not-allowed;transform:none;}
 
-    /* 기록 리스트 */
+    /* 기록 */
     .record-list{width:100%;max-width:480px;}
     .record-item{background:var(--surface);border-radius:12px;padding:14px 16px;margin-bottom:8px;box-shadow:var(--shadow);border:1px solid var(--border);display:flex;align-items:center;gap:12px;}
-    .record-thumb{width:44px;height:44px;border-radius:8px;object-fit:cover;background:var(--thumb-bg);flex-shrink:0;}
-    .record-thumb-empty{width:44px;height:44px;border-radius:8px;background:var(--thumb-bg);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
-    .record-info{flex:1;min-width:0;}
-    .record-po{font-size:14px;font-weight:700;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .record-meta{font-size:12px;color:var(--text-muted);margin-top:2px;}
+    .rec-thumb{width:44px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0;}
+    .rec-thumb-empty{width:44px;height:44px;border-radius:8px;background:var(--thumb-bg);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+    .rec-info{flex:1;min-width:0;}
+    .rec-po{font-size:14px;font-weight:700;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .rec-meta{font-size:12px;color:var(--text-muted);margin-top:2px;}
+    .badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent);}
+    .badge-warn{background:#3a2000;color:#f0b060;border-color:#f0b060;}
+    [data-theme="light"] .badge-warn{background:#fff3e0;color:#a05000;border-color:#a05000;}
     .no-records{text-align:center;color:var(--text-muted);font-size:13px;padding:16px 0;}
-    .badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent);opacity:.8;}
-    .badge-warn{background:#3a1a00;color:#f0a060;border-color:#f0a060;}
-    [data-theme="light"] .badge-warn{background:#fff3e0;color:#b05000;border-color:#b05000;}
 
     /* 제품 추가 */
-    .custom-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;background:#1f2a1a;color:#6fcf5a;border:1px solid #6fcf5a;opacity:.9;}
+    .custom-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;background:#1f2a1a;color:#6fcf5a;border:1px solid #6fcf5a;}
     [data-theme="light"] .custom-badge{background:#edfae8;color:#2d8c1c;border-color:#2d8c1c;}
     .product-item{background:var(--surface);border-radius:12px;padding:14px 16px;margin-bottom:8px;box-shadow:var(--shadow);border:1px solid var(--border);display:flex;align-items:center;gap:12px;}
     .product-icon{width:44px;height:44px;border-radius:8px;background:var(--thumb-bg);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
     .product-info{flex:1;min-width:0;}
     .product-name{font-size:14px;font-weight:700;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .product-code{font-size:12px;color:var(--text-muted);margin-top:2px;}
-    .product-delete{width:28px;height:28px;border-radius:8px;background:transparent;border:1.5px solid var(--border);color:var(--text-muted);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
-    .product-delete:hover{border-color:#e05c5c;color:#e05c5c;}
+    .product-del{width:28px;height:28px;border-radius:8px;background:transparent;border:1.5px solid var(--border);color:var(--text-muted);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
+    .product-del:hover{border-color:#e05c5c;color:#e05c5c;}
 
-    .toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface);color:var(--text-primary);border:1px solid var(--border);padding:12px 20px;border-radius:24px;font-size:14px;font-weight:500;opacity:0;transition:transform .3s ease,opacity .3s ease;z-index:999;white-space:nowrap;box-shadow:var(--shadow);}
+    .toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface);color:var(--text-primary);border:1px solid var(--border);padding:12px 20px;border-radius:24px;font-size:14px;font-weight:500;opacity:0;transition:transform .3s,opacity .3s;z-index:999;white-space:nowrap;box-shadow:var(--shadow);}
     .toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
   </style>
 </head>
 <body>
 
 <header>
-  <div class="titles">
+  <div>
     <h1>📦 Label Check</h1>
     <p>수입제품 입고 라벨 비교</p>
   </div>
@@ -166,47 +167,76 @@
   <button class="tab-btn" id="tab-product" onclick="switchTab('product')">➕ 제품 추가</button>
 </div>
 
-<!-- ══ 입고 등록 탭 ══ -->
+<!-- ══ 입고 등록 ══ -->
 <div class="tab-panel active" id="panel-register">
 
 <div class="card">
   <div class="section-title">입고 정보</div>
-
   <div class="field">
-    <label for="date">날짜</label>
-    <input type="date" id="date" />
+    <label>날짜</label>
+    <input type="date" id="date"/>
   </div>
-
   <div class="field">
     <label>BPCS CODE</label>
     <div class="bpcs-wrap" id="bpcsWrap">
-      <div class="bpcs-input-row">
-        <input type="text" id="bpcsInput" placeholder="코드 또는 품명으로 검색 / 직접 입력" autocomplete="off" />
-        <button class="bpcs-clear-btn" onclick="clearBpcs()" title="초기화">✕</button>
+      <div class="bpcs-row">
+        <input type="text" id="bpcsInput" placeholder="코드 또는 품명으로 검색 / 직접 입력" autocomplete="off"/>
+        <button class="bpcs-clear" onclick="clearBpcs()">✕</button>
       </div>
       <div class="bpcs-dropdown" id="bpcsDropdown"></div>
       <div id="bpcsTag"></div>
-      <div id="latestInfo"></div>
     </div>
   </div>
-
   <div class="field">
-    <label for="po">PO #</label>
-    <input type="text" id="po" placeholder="예: PO-2026-001" autocomplete="off" />
+    <label>PO #</label>
+    <input type="text" id="po" placeholder="예: PO-2026-001" autocomplete="off"/>
   </div>
 </div>
 
 <div class="card">
-  <div class="section-title">입고 사진 <span style="color:var(--text-muted);font-weight:400;font-size:11px;text-transform:none;">(OCR 텍스트 비교용 — 첫 번째 사진 기준)</span></div>
+  <div class="section-title">입고 사진 업로드</div>
   <div class="upload-zone" id="uploadZone">
-    <input type="file" id="fileInput" accept="image/*" multiple />
+    <input type="file" id="fileInput" accept="image/*" multiple/>
     <div class="upload-icon">📷</div>
-    <div class="upload-hint"><strong>사진 선택</strong> 또는 드래그해서 업로드<br/>여러 장 동시 선택 가능</div>
+    <div class="upload-hint"><strong>사진 선택</strong> 또는 드래그<br/>여러 장 동시 선택 가능</div>
   </div>
-  <div class="preview-grid" id="previewGrid"></div>
 </div>
 
-<button class="submit-btn" id="saveBtn" onclick="saveRecord()">저장하기</button>
+<!-- 비교 카드 (업로드 후 표시) -->
+<div class="compare-card" id="compareCard">
+  <div class="compare-header">
+    <div class="compare-title">🔍 라벨 비교</div>
+    <div class="compare-status" id="compareStatus"></div>
+  </div>
+
+  <div class="compare-grid">
+    <!-- 이전 -->
+    <div class="compare-side" id="prevSide">
+      <div class="compare-empty" id="prevEmpty">
+        <span>📭</span>
+        <p>이전 라벨 없음</p>
+      </div>
+      <img id="prevImg" style="display:none"/>
+      <div class="compare-side-label prev-label">이전 입고</div>
+    </div>
+    <!-- 새 -->
+    <div class="compare-side new-side" id="newSide">
+      <div class="new-thumbs" id="newThumbs"></div>
+      <div class="compare-side-label new-label">새 입고</div>
+    </div>
+  </div>
+
+  <!-- OCR 상태 -->
+  <div class="ocr-status" id="ocrStatus">
+    <div class="ocr-spinner" id="ocrSpinner"></div>
+    <div class="ocr-status-text" id="ocrStatusText">OCR 분석 중...</div>
+  </div>
+
+  <!-- diff 결과 -->
+  <div class="diff-section" id="diffSection" style="display:none"></div>
+</div>
+
+<button class="submit-btn" id="saveBtn" onclick="saveRecord()" style="display:none">저장하기</button>
 
 <div style="width:100%;max-width:480px;margin-top:28px;margin-bottom:8px;">
   <div class="section-title">저장된 기록</div>
@@ -215,21 +245,21 @@
 
 </div><!-- /panel-register -->
 
-<!-- ══ 제품 추가 탭 ══ -->
+<!-- ══ 제품 추가 ══ -->
 <div class="tab-panel" id="panel-product">
 <div class="card">
   <div class="section-title">새 제품 등록</div>
   <div class="field">
-    <label for="newProductName">제품명 <span style="color:var(--accent)">*</span></label>
-    <input type="text" id="newProductName" placeholder="예: 하인즈 신제품 소스 500g" autocomplete="off" />
+    <label>제품명 <span style="color:var(--accent)">*</span></label>
+    <input type="text" id="newName" placeholder="예: 하인즈 신제품 소스 500g" autocomplete="off"/>
   </div>
   <div class="field">
-    <label for="newProductCode">BPCS CODE <span style="color:var(--text-muted);font-weight:400;">(없으면 자동 부여)</span></label>
-    <input type="text" id="newProductCode" placeholder="예: 63011200" autocomplete="off" />
+    <label>BPCS CODE <span style="color:var(--text-muted);font-weight:400">(없으면 자동)</span></label>
+    <input type="text" id="newCode" placeholder="예: 63011200" autocomplete="off"/>
   </div>
   <div class="field">
-    <label for="newProductMemo">메모 <span style="color:var(--text-muted);font-weight:400;">(선택)</span></label>
-    <input type="text" id="newProductMemo" placeholder="예: 신규 소싱, 거래처 ○○" autocomplete="off" />
+    <label>메모 <span style="color:var(--text-muted);font-weight:400">(선택)</span></label>
+    <input type="text" id="newMemo" placeholder="예: 신규 소싱" autocomplete="off"/>
   </div>
 </div>
 <button class="submit-btn" onclick="saveProduct()">제품 추가하기</button>
@@ -239,36 +269,11 @@
 </div>
 </div><!-- /panel-product -->
 
-<!-- OCR 오버레이 -->
-<div class="ocr-overlay" id="ocrOverlay">
-  <div class="ocr-spinner"></div>
-  <div class="ocr-label" id="ocrLabel">🔍 라벨 텍스트 분석 중...</div>
-  <div class="ocr-progress" id="ocrProgress">잠시만 기다려주세요</div>
-</div>
-
-<!-- 변경사항 모달 -->
-<div class="modal-backdrop" id="modalBackdrop">
-  <div class="modal" id="diffModal">
-    <div class="modal-header">
-      <div class="modal-icon">⚠️</div>
-      <div>
-        <div class="modal-title">라벨 텍스트 변경 감지!</div>
-        <div class="modal-sub" id="modalSub"></div>
-      </div>
-    </div>
-    <div id="diffContent"></div>
-    <div class="modal-actions">
-      <button class="modal-btn secondary" onclick="closeModal()">취소 (저장 안 함)</button>
-      <button class="modal-btn primary" onclick="confirmSave()">확인하고 저장</button>
-    </div>
-  </div>
-</div>
-
 <div class="toast" id="toast">✅ 저장 완료!</div>
 
 <script>
-// ── BPCS 마스터 데이터 ──
-const BPCS_LIST = [
+// ── BPCS 데이터 ──
+const BPCS_LIST=[
   {code:"63010024",name:"하인즈 클래시코 토마토&바질 680gX12"},
   {code:"63010028",name:"화이트 소스(2.9KG*6)"},
   {code:"63010030",name:"하인즈 칠리 소스 340gX12"},
@@ -371,40 +376,9 @@ const BPCS_LIST = [
   {code:"63010772",name:"하인즈 데미돈까스소스 참깨맛 300gX12"},
   {code:"63010773",name:"워티）스파게티 비프 소스3KG"},
   {code:"63010774",name:"W)데미그라스 소스3KG*6"},
-  {code:"63010775",name:"크리스탈라이트핑크레몬에이드3.68g*2*10*12(GS25)"},
-  {code:"63010776",name:"크리스탈라이트 피치망고그린티2.32g*2*10*12(GS25)"},
-  {code:"63010777",name:"베스트콤비네이션팩(TK910*2+SR769+YM396)*6(COSTCO)"},
-  {code:"63010778",name:"베스트 듀오팩(TK570*2+HM425*2)*8 (COSTCO)"},
-  {code:"63010779",name:"하인즈 옐로우머스타드14OZ 2번들*6 (VIC)"},
-  {code:"63010780",name:"하인즈 토마토케찹342G 3번들*8（이마트）"},
-  {code:"63010781",name:"(SPC) 크래프트 컨트리타임 레몬에이드 585G * 12"},
-  {code:"63010782",name:"(SPC)컨츄리타임 핑크레몬에이드583G*12"},
-  {code:"63010783",name:"(SPC) 크래프트 쿨에이드 체리 538G * 12"},
-  {code:"63010785",name:"(SPC) 크래프트 델리큐브 치즈케익 3kg"},
-  {code:"63010786",name:"(SPC) 크래프트 크림치즈 13.6kg"},
-  {code:"63010789",name:"크리스탈라이트 핑크레몬에이드 3.68G*5*6*8(세븐일레븐)"},
-  {code:"63010790",name:"크리스탈라이트 피치망고그린티 2.32G*5*6*8(세븐일레븐)"},
   {code:"63010793",name:"하인즈 버거소스230g *8"},
-  {code:"63010794",name:"크리스탈 라이트 버라이어티팩 + 보틀(물병)"},
   {code:"63010797",name:"버거소스 3번들"},
   {code:"63010798",name:"하인즈 우스타소스1GAL*4"},
-  {code:"63010803",name:"크리스탈 라이트 온더고 피치망고 그린티23.2G*6번들*8"},
-  {code:"63010804",name:"크리스탈 라이트 온더고 라즈베리 그린티27.2G*6번들*8"},
-  {code:"63010805",name:"크리스탈라이트 온더고 레몬에이드39.6G*12"},
-  {code:"63010806",name:"크리스탈라이트 온더고 체리석류 33.4G*12"},
-  {code:"63010807",name:"하인즈 굿 마요네즈2번들（295ml*2)*4"},
-  {code:"63010808",name:"하인즈 굿 아이올리 2번들（295ml*2)*4"},
-  {code:"63010809",name:"컨츄리타임 스트로베리 레몬에이드510G*12"},
-  {code:"63010810",name:"컨츄리타임 블랙체리 레몬에이드521G*12"},
-  {code:"63010813",name:"골든서클 애플250ML*24"},
-  {code:"63010814",name:"하인즈 토마토케찹 35g * 100"},
-  {code:"63010819",name:"크래프트 맥앤치즈 이지맥 오리지널366G*8"},
-  {code:"63010820",name:"크리스탈라이트 레몬에이드 피쳐팩3.2Z*12"},
-  {code:"63010821",name:"크리스탈라이트 스트로베리오렌지바나나 피쳐팩2.4Z*12"},
-  {code:"63010822",name:"크리스탈라이트 스트로베리 워터멜론 55.7g"},
-  {code:"63010827",name:"크리스탈라이트 온더고 6번들(TW) 180G*6"},
-  {code:"63010834",name:"하인즈저그펌프"},
-  {code:"63010835",name:"하인즈 베지바이츠 브로콜리 플로렛 350g * 12"},
   {code:"63010836",name:"불스아이 오리지널 비비큐소스335G(300ML)*6"},
   {code:"63010837",name:"불스아이 뉴욕스테이크하우스비비큐소스360G*6"},
   {code:"63010838",name:"하인즈 토마토 케찹 250g x 10"},
@@ -412,19 +386,6 @@ const BPCS_LIST = [
   {code:"63010844",name:"오레아이다 엑스트라 크리스피 프라이 737G*12"},
   {code:"63010845",name:"오레아이다 미니 테이터 톳츠 794G*12"},
   {code:"63010846",name:"오레아이다 크리스피 프라이 907G*12"},
-  {code:"63010847",name:"오레아이다 스위트포테이토 스트레이트컷539G*6"},
-  {code:"63010848",name:"오레아이다 어니언 링 567G*12"},
-  {code:"63010853",name:"옐로우 머스타드 14OZ*2 BUNDLE PACK*9"},
-  {code:"63010854",name:"HNZ TK&BURGER SAUCE PACK (570g*2, 230h)*8"},
-  {code:"63010859",name:"하인즈 케찹 910g*8"},
-  {code:"63010860",name:"크리스탈라이트 버라이어티팩 4입 36.8g"},
-  {code:"63010861",name:"Kraft Easy Mac&Cheese Mac Original 366G*8(VIC)"},
-  {code:"63010862",name:"JET-PUFFED MARSHMALLOW BITS VANILLA 40LB(18KG)"},
-  {code:"63010863",name:"KRAFT CREAM CHEESE 30LB (QT)"},
-  {code:"63010864",name:"하인즈 토마토 케찹 650G 2번들 (650g*2)*10(VIC)"},
-  {code:"63010865",name:"하인즈 굿마요 295ML 2번들(295ML*2)*10"},
-  {code:"63010866",name:"하인즈 스위트 바비큐 500g 2번들 (500g*2)*10(VIC)"},
-  {code:"63010867",name:"하인즈 토마토 케찹 1.35*6"},
   {code:"63010868",name:"하인즈 베지바이츠 브로콜리 프라이즈 400g * 12"},
   {code:"63010869",name:"하인즈 베지바이츠 콜리플라워 플로렛 350g * 12"},
   {code:"63010870",name:"하인즈 베지바이츠 브로콜리 플로렛 350g * 12"},
@@ -432,500 +393,339 @@ const BPCS_LIST = [
   {code:"63010872",name:"하인즈 코셔딜 피클 슬라이스 3kg"},
   {code:"63010873",name:"하인즈 토마토 케찹(KR) 460g x 10"},
   {code:"63010874",name:"하인즈 토마토 케찹(KR) 570g x 10"},
-  {code:"63010875",name:"허니머스타드 425g 2pack"},
-  {code:"63010876",name:"하인즈 케찹(PROMO)460g 8번들팩 (코스트코) * 4입"},
-  {code:"63010878",name:"하인즈 오레아이다 엑스트라 크리스피 프라이 737g X 2"},
-  {code:"63010879",name:"하인즈 오레아이다 골든 프랜치 프라이 907g X 2"},
-  {code:"63010880",name:"하인즈 오레아이다 미니 테이터 톳츠 794G X 2"},
-  {code:"63010885",name:"하인즈 버거소스 230g *4번들 *8(Costco)"},
-  {code:"63010886",name:"하인즈 토마토 케찹 910g 8 번들 (트레이더스)"},
-  {code:"63010887",name:"불스아이 오리지널 355G 2번들팩*12 (VIC)"},
-  {code:"63010888",name:"불스아이 뉴욕 360 2번들팩*12 (VIC)"},
-  {code:"63010889",name:"베지바이츠 브로콜리 프라이즈 400g*2번들 *6"},
-  {code:"63010890",name:"베지바이츠 브로콜리 플로렛 350g*2번들 *6"},
-  {code:"63010891",name:"베지바이츠 콜리플라워 플로렛 3500g*2번들 *6"},
-  {code:"63010892",name:"불스아이 오리지널 클린 비비큐소스"},
-  {code:"63010894",name:"CL 버라이어티팩 90g Bottle Pack * 8 (SSM)"},
-  {code:"63010895",name:"CL 체리석류 3 Bottle Pack (100.2g) * 8 (SSM)"},
-  {code:"63010896",name:"크리스탈 라이트 온더고 3Pack(피치망고그린티)"},
-  {code:"63010897",name:"CL 핑크레몬에이드 3 Bottle Pack (110.4g) * 8 (SSM)"},
   {code:"63010898",name:"하인즈 갈릭 케찹 300g"},
   {code:"63010899",name:"하인즈 스리라차 케찹 300g"},
   {code:"63010900",name:"하인즈 토마토 케찹 샤쉐 9g * 300"},
   {code:"63010901",name:"하인즈 KR 굿마요네즈 500ml*8"},
   {code:"63010902",name:"하인즈 KR 굿 아이올리 500ml *8"},
-  {code:"63010903",name:"하인즈 KR 굿마요네즈 295ml*8"},
-  {code:"63010904",name:"하인즈 KR 굿 아이올리 295ml *8"},
-  {code:"63010905",name:"CL 온더고 핑크레몬에이드 36.8G*12(GS25전용)"},
-  {code:"63010906",name:"CL 온더고 피치망고그린티 23.2G*12(GS25전용)"},
-  {code:"63010907",name:"CL 온더고 체리석류 33.6G * 12 (GS25전용)"},
   {code:"63010908",name:"하인즈 비건 마요 270ml*8"},
   {code:"63010909",name:"하인즈 비건 아이올리 270ML*8"},
-  {code:"63010911",name:"(H)스몰홀 코셔딜 피클(3KG) 면세"},
-  {code:"63010912",name:"크리스탈라이트 레몬에이드 피쳐팩 90g (종이팩)"},
-  {code:"63010913",name:"크리스탈라이트 레몬아이스티 19.8oz *12"},
-  {code:"63010914",name:"Lea&Perrins Worcester Sauce 290ml * 12"},
   {code:"63010915",name:"하인즈 시리어슬리 굿 마요 900gX6"},
-  {code:"63010917",name:"HEINZ DGSCE REGULAR POUCH 3KGX4"},
-  {code:"63010918",name:"HEINZ BROAD BEANS 500GX12"},
-  {code:"63010919",name:"HEINZ MIXED VEGETABLES 500GX12"},
-  {code:"63010920",name:"ORE-IDA GOLDEN HASH BROWN PATTIES 12/22.5Z"},
   {code:"63010921",name:"하인즈 리듀스드 토마토 케찹 836g"},
   {code:"63010922",name:"하인즈 데미그라스 BBQ RTC 2.35KG X 6"},
-  {code:"63010923",name:"하인즈 데미그라스 데리야끼 RTC 2.35KG X 6"},
-  {code:"63010924",name:"하인즈 데미그라스 퐁드보 RTC 2.35KG X 6"},
   {code:"63010925",name:"하인즈 파이브가이즈 마요네즈 2.5L x 3"},
   {code:"63010926",name:"하인즈 토마토 바질 파스타 소스 350g * 12"},
   {code:"63010927",name:"하인즈 머쉬룸 치즈 크림 파스타 소스 350g * 12"},
   {code:"63010928",name:"하인즈 미트 칠리 파스타 소스 350g * 12"},
   {code:"63010929",name:"하인즈 크리미 로제 파스타 소스 350g * 12"},
-  {code:"63010932",name:"하인즈 다이스드 토마토 2,892g * 6 (원료용)"},
-  {code:"63010933",name:"하인즈 파우치 토마토 페이스트 3,150g * 6 (원료용)"},
-  {code:"63010934",name:"크리스탈라이트 온더고 핑크레몬에이드 40포 X 8 (TW)"},
-  {code:"63010935",name:"하인즈 디스펜서용 케찹 1.5gal (6.45kg) x 2"},
-  {code:"63010936",name:"하인즈 디스펜서용 머신"},
-  {code:"63010937",name:"크래프트 크림치즈 3lbs (1.36kg) * 6 (QT)"},
-  {code:"63010938",name:"CL 온더고 30t(핑크,라즈,체리)X12(쿠팡)"},
-  {code:"63010939",name:"하인즈 스위트 칠리 소스 260g * 8"},
-  {code:"63010940",name:"CL 라즈베리그린티 27.2g X 12_POP"},
-  {code:"63010941",name:"CL 레몬에이드 39.6g X 12_POP"},
-  {code:"63010942",name:"CL 레몬아이스드티 19.8g X12_POP"},
-  {code:"63010944",name:"CL 온더고 40T(피치망고 20t, 레몬, 레몬블랙)X12"},
-  {code:"63010945",name:"하인즈 케찹 시즈닝 110g*50"},
-  {code:"63010946",name:"하인즈 리듀스드 슈가 케찹 836g * 12 오픈트레이 (Lotte Maxx)"},
   {code:"63010947",name:"하인즈 오리지널 마요네즈 900g 3Pack *8EA"},
   {code:"63010948",name:"하인즈 버거 소스 418g x 10"},
-  {code:"63010949",name:"하인즈 빈즈 415g 8Pack *6EA"},
-  {code:"63010950",name:"하인즈 딜리셔스 소스 팩 1230g x 8 (쿠팡)"},
-  {code:"63010951",name:"파이브가이즈 토마토 케찹 디스펜서 팩 14LB 4Z * 3"},
-  {code:"63010952",name:"하인즈 라이트 마요네즈 285ml x 8"},
-  {code:"63010953",name:"하인즈 페리 페리 마요네즈 295ml x 8"},
-  {code:"63010954",name:"하인즈 치폴레 케찹 397g x 6"},
-  {code:"63010955",name:"하인즈 하바네로 케찹 397g x 6"},
-  {code:"63010956",name:"하인즈 마요네즈&케찹 932g x 8 (이마트 창립행사)"},
-  {code:"63010957",name:"CL OTG 올리브영 12T 핑크레몬에이드*12입 (531G)"},
-  {code:"63010958",name:"CL OTG 올리브영 12T 피치망고그린티*12입 (334G)"},
-  {code:"63010959",name:"CL OTG 올리브영 12T 레몬에이드*12입 (570G)"},
-  {code:"63010960",name:"CL OTG 올리브영 12T 레몬아이스드*12입 (285G)"},
-  {code:"63010961",name:"하인즈 옐로우 머스타드 샤쉐 5g x 300"},
-  {code:"63010963",name:"CL 레몬아이스드티 피쳐 121g X 12 X 20"},
-  {code:"63010964",name:"CL 24 TW 피치망고 3팩 (69.6g) X 7 (487g)"},
-  {code:"63010965",name:"하인즈 화이트 식초 5L x 6 (스페인)"},
-  {code:"63010966",name:"하인즈 화이트 식초 1gal x 6 (스페인)"},
-  {code:"63010967",name:"CL 온더고 핑크 36.8g X 12 (올리브영)"},
-  {code:"63010968",name:"CL 온더고 피치망고 X 12 (올리브영)"},
-  {code:"63010969",name:"CL 온더고 라즈베리 27.2g X 12 (올리브영)"},
-  {code:"63010970",name:"CL 온더고 레몬에이드 39.6g X 12 (올리브영)"},
-  {code:"63010971",name:"CL 온더고 체리석류 33.4g X 12 (올리브영)"},
-  {code:"63010972",name:"CL 온더고 레몬아이스드티 19.8g X 12 (올리브영)"},
-  {code:"63010973",name:"오스카마이어 메이플 베이컨 453g X 12"},
-  {code:"63010974",name:"하인즈 우스터 소스 510g x 12"},
-  {code:"63010975",name:"CL 레몬아이스드티 피쳐 121g X 2 X 6 (Costco)"},
   {code:"63010976",name:"하인즈 사우전드 아일랜드 드레싱 476g X 12"},
   {code:"63010977",name:"하인즈 랜치드레싱 466g X 12"},
   {code:"63010978",name:"하인즈 시저 드레싱 461g X 12"},
-  {code:"63010979",name:"CL 온더고 피치망고 그린티23.2G*6*1 (Costco)"},
-  {code:"63010980",name:"CL 온더고 라즈베리 그린티27.2G*6*1 (Costco)"},
-  {code:"63010981",name:"하인즈 스위트 칠리 소스 260g * 8"},
   {code:"63010982",name:"하인즈 마요네즈 2.5L x 3"},
-  {code:"63010983",name:"하인즈 스위트랠리쉬 769ml 2번들 x 6 (TW)"},
-  {code:"63010984",name:"★냉동★오레아이다 스위트콘 270g x 24 x 2"},
-  {code:"63010985",name:"★냉동★오레아이다 야채믹스 270g x 24 x 2"},
-  {code:"63010986",name:"하인즈 디스펜서용 옐로우머스타드 1.5GAL x 2"},
-  {code:"63010987",name:"하인즈 볼팍 토마토 케찹 15kg x 1"},
-  {code:"63010988",name:"★냉동★하인즈 데미 함박 스테이크 380g*14"},
-  {code:"63010989",name:"★냉동★하인즈 토마토 함박 스테이크 380g*14"},
-  {code:"63010990",name:"하인즈 피클 토마토 케찹 460g x 10"},
-  {code:"63010991",name:"크래프트 큐브치즈케이크 500g X 12"},
-  {code:"63010992",name:"하인즈 베이컨 토마토 파스타 소스 350g * 12"},
-  {code:"63010993",name:"하인즈 고추장 로제 파스타 소스 350g * 12"},
-  {code:"63010994",name:"하인즈 키스톤 케찹 디스펜서 3.0"},
-  {code:"63010995",name:"하인즈 애플 사이다 식초 946ml x 12"},
-  {code:"63010996",name:"하인즈 화이트 식초 946ml x 12"},
-  {code:"63010997",name:"하인즈 굿 마요 500ml 3번들 x 3 (Costco)"},
-  {code:"63010998",name:"키스톤디스펜서 노즐"},
-  {code:"63010999",name:"하인즈 화이트 식초 1gal x 6 (로컬 카톤)"},
-  {code:"63011000",name:"하인즈 필드 토마토 400g x 12"},
-  {code:"63011002",name:"하인즈 피자 소스 400g x 12"},
-  {code:"63011003",name:"하인즈 클래식 토마토 퓨레 500g x 6"},
   {code:"63011005",name:"하인즈 50% 슈가 & 솔트 케찹 435g x 10"},
   {code:"63011006",name:"하인즈 유기농 케찹 580g x 10"},
   {code:"63011007",name:"A1 오리지널 15OZ X 12"},
-  {code:"63011008",name:"CL (액상) 스트로베리 레몬에이드 48ml X 12"},
-  {code:"63011009",name:"하인즈 화이트 식초 1gal x 6 (롯데맥스)"},
-  {code:"63011010",name:"하인즈 화이트 식초1gal *3 (스페인)"},
-  {code:"63011011",name:"CL (액상) 블루베리 라즈베리 48ml X 12"},
-  {code:"63011012",name:"CL (액상) 트로피컬 코코넛 48ml X 12"},
-  {code:"63011013",name:"오레아이다 스위트콘 270g x 24"},
-  {code:"63011014",name:"오레아이다 야채믹스 270g x 24"},
-  {code:"63011015",name:"하인즈 50% 슈가 앤 솔트"},
-  {code:"63011016",name:"크리스탈라이트 믹솔로지 33g X 12"},
-  {code:"63011017",name:"클래시코 크리미 알프레도 425g 3번들 x 4 (Costco)"},
-  {code:"63011018",name:"하인즈 460g 케찹 8번들 * 4 (COSTCO) 온라인"},
-  {code:"63011019",name:"BK 하인즈 옐로우 머스타드 파우치 300g x 20"},
-  {code:"63011020",name:"크래프트 아보카도 마요 650ml X 8"},
-  {code:"63011021",name:"젯퍼프드 마시멜로우 크림"},
-  {code:"63011022",name:"크래프트 리얼 마요 650ml X 12"},
-  {code:"63011023",name:"크래프트 아보카도 마요 354ml X 12"},
-  {code:"63011024",name:"하인즈 케찹 570g 3번들 x 8 (이마트기획팩)"},
   {code:"63011025",name:"하인즈 케찹 1.35kg x 6"},
   {code:"63011026",name:"하인즈 케찹 1.35kg 2번들 x 6 (코스트코)"},
-  {code:"63011027",name:"H)토마토 페이스트3.15kg"},
-  {code:"63011028",name:"파우치 토마토 페이스트 3.15kg"},
-  {code:"63011029",name:"(★스페인산★) 하인즈 볼팍 토마토 케찹 15kg * 1"},
-  {code:"63011030",name:"크래프트 큐브 치즈 케익 3kg W/O"},
-  {code:"63011031",name:"크래프트 크림 치즈 30lb W/O"},
-  {code:"63011032",name:"하인즈 토마토 케찹(KR) 570g x 10"},
-  {code:"63011033",name:"하인즈 굿 마요네즈 (KR) 500ml * 8"},
-  {code:"63011034",name:"크래프트 크림 치즈 3lb x 6 W/O"},
-  {code:"63011035",name:"CL 온더고 레몬아이스드티 19.8g X 12 (올리브영)"},
   {code:"63011036",name:"미라클휩 887ml X 12"},
-  {code:"63011037",name:"하인즈 CU 후실리 케찹 포켓모닝 110g x 48"},
-  {code:"63011038",name:"하인즈 CU 에그 머스타드 포켓모닝 110g x 48"},
-  {code:"63011039",name:"하인즈 CU 참치 마요 포켓모닝 110g x 48"},
-  {code:"63011040",name:"미라클휩 887ml X2 X6(코스트코)"},
-  {code:"63011041",name:"하인즈 비건 마요 (KR) 270ml x 8"},
-  {code:"63011042",name:"★냉동★베이글바이츠 쓰리치즈 198g X 8"},
-  {code:"63011043",name:"하인즈 케찹 사셰 630g (9gx70) x 8 (이마트)"},
-  {code:"63011044",name:"하인즈 머스터드 사셰 350g (5gx70) x 8 (이마트)"},
-  {code:"63011045",name:"하인즈 토마토바질 파스타소스 3번들 x 4 (롯데맥스)"},
-  {code:"63011046",name:"(Maxx) 하인즈 랜치 466g X 12"},
   {code:"63011047",name:"골든서클 오렌지 1LX12"},
   {code:"63011048",name:"골든서클 파인오렌지 1LX12"},
-  {code:"63011049",name:"골든서클 파인망고 1LX12"},
-  {code:"63011050",name:"골든서클 파인망고 250MLX44"},
-  {code:"63011051",name:"골든서클 오렌지 250MLX44"},
-  {code:"63011052",name:"골든서클 파인오렌지 250MLX44"},
   {code:"63011053",name:"하인즈 랜치드레싱 230g X 12"},
-  {code:"63011054",name:"하인즈 사우전드아일랜드 238g X 12"},
-  {code:"63011055",name:"하인즈 이탈리안 피자소스 파우치 2.97kg x 6"},
-  {code:"63011056",name:"심플리 하인즈 볼팍 케찹 3gal(12.5kg) x 1"},
-  {code:"63011059",name:"크래프트 아보카도 오일 마요 887ml X 12"},
   {code:"63011062",name:"하인즈 빅레드 토마토 케찹 4L(4.48kg) X 3"},
-  {code:"63011063",name:"와티스 토마토 퓨레 410g x 12"},
-  {code:"63011064",name:"와티스 토마토 페이스트 310g x 24"},
-  {code:"63011065",name:"크리스탈라이트 라즈베리 피치 54g X 12"},
-  {code:"63011066",name:"크리스탈라이트 믹스드베리 49gX12"},
-  {code:"63011067",name:"하인즈 허니 머스터드 파우치 150g x 24"},
-  {code:"63011070",name:"하인즈 토마토어니언 파스타 소스 350g x 12"},
-  {code:"63011071",name:"크래프트 크림치즈 타르트 240g X 20"},
-  {code:"63011072",name:"아보카도마요 887ml X 2입 X 6 (코스트코)"},
   {code:"63011074",name:"하인즈 치킨소스 295ml x 8"},
-  {code:"63011075",name:"크래프트 크림치즈 베이글 (옥수수) 90g X 1"},
-  {code:"63011076",name:"하인즈 데미포크 그라탕브레드 125g x 1"},
-  {code:"63011077",name:"하인즈 토마토비프 그라탕브레드 125g x 1"},
-  {code:"63011078",name:"하인즈 지방을 50% 줄인 마요네즈 485ml x 8"},
-  {code:"63011087",name:"크래프트 크림치즈 타르트 240g X 10"},
-  {code:"63011092",name:"벨라로사 크러쉬드 토마토 2.98kg x 6"},
-  {code:"63011093",name:"CL 쿠팡팩 110g (P+L+C) X 12"},
-  {code:"63011098",name:"(SPC) A.1. 283g X 12 (US)"},
   {code:"63011099",name:"하인즈 50% 케첩앤마요 2번들 x 10 (쿠팡)"},
   {code:"63011100",name:"하인즈 치킨앤버거소스팩 2번들 x 10 (쿠팡)"},
-  {code:"63011107",name:"크래프트 말차타르트 360g X 7"},
   {code:"63011108",name:"하인즈 치킨소스 295ml x 3 x 8 (코스트코)"},
 ];
 
 // ── 테마 ──
-const savedTheme = localStorage.getItem('theme') || 'dark';
+const savedTheme=localStorage.getItem('theme')||'dark';
 setTheme(savedTheme);
 function setTheme(t){document.documentElement.setAttribute('data-theme',t);localStorage.setItem('theme',t);document.getElementById('themeBtn').textContent=t==='dark'?'☀️ Light':'🌙 Dark';}
 function toggleTheme(){setTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark');}
 
-document.getElementById('date').valueAsDate = new Date();
+document.getElementById('date').valueAsDate=new Date();
 
 // ── BPCS 검색 ──
-const bpcsInput = document.getElementById('bpcsInput');
-const dropdown = document.getElementById('bpcsDropdown');
-const bpcsTag = document.getElementById('bpcsTag');
-const latestInfo = document.getElementById('latestInfo');
-let selectedBpcs = null;
-let activeIdx = -1;
+const bpcsInput=document.getElementById('bpcsInput');
+const dropdown=document.getElementById('bpcsDropdown');
+let selectedBpcs=null,activeIdx=-1;
 
-bpcsInput.addEventListener('input',()=>{selectedBpcs=null;bpcsTag.innerHTML='';latestInfo.innerHTML='';renderDropdown(bpcsInput.value.trim());});
-bpcsInput.addEventListener('focus',()=>renderDropdown(bpcsInput.value.trim()));
+bpcsInput.addEventListener('input',()=>{selectedBpcs=null;document.getElementById('bpcsTag').innerHTML='';renderDD(bpcsInput.value.trim());});
+bpcsInput.addEventListener('focus',()=>renderDD(bpcsInput.value.trim()));
 bpcsInput.addEventListener('keydown',(e)=>{
   const items=dropdown.querySelectorAll('.bpcs-item');
-  if(e.key==='ArrowDown'){e.preventDefault();activeIdx=Math.min(activeIdx+1,items.length-1);updateActive(items);}
-  else if(e.key==='ArrowUp'){e.preventDefault();activeIdx=Math.max(activeIdx-1,0);updateActive(items);}
-  else if(e.key==='Enter'){e.preventDefault();if(activeIdx>=0&&items[activeIdx])items[activeIdx].click();else closeDropdown();}
-  else if(e.key==='Escape')closeDropdown();
+  if(e.key==='ArrowDown'){e.preventDefault();activeIdx=Math.min(activeIdx+1,items.length-1);updActive(items);}
+  else if(e.key==='ArrowUp'){e.preventDefault();activeIdx=Math.max(activeIdx-1,0);updActive(items);}
+  else if(e.key==='Enter'){e.preventDefault();if(activeIdx>=0&&items[activeIdx])items[activeIdx].click();else closeDD();}
+  else if(e.key==='Escape')closeDD();
 });
-document.addEventListener('click',(e)=>{if(!document.getElementById('bpcsWrap').contains(e.target))closeDropdown();});
-function updateActive(items){items.forEach((el,i)=>el.classList.toggle('active',i===activeIdx));if(items[activeIdx])items[activeIdx].scrollIntoView({block:'nearest'});}
-function highlight(text,query){if(!query)return text;const re=new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`,'gi');return text.replace(re,'<span class="bpcs-highlight">$1</span>');}
+document.addEventListener('click',(e)=>{if(!document.getElementById('bpcsWrap').contains(e.target))closeDD();});
+function updActive(items){items.forEach((el,i)=>el.classList.toggle('hi',i===activeIdx));if(items[activeIdx])items[activeIdx].scrollIntoView({block:'nearest'});}
+function hl(text,q){if(!q)return text;return text.replace(new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`,'gi'),'<span class="hl">$1</span>');}
 
-function renderDropdown(query){
+function renderDD(q){
   const custom=getCustomProducts();
-  const combined=[...custom.map(p=>({code:p.code,name:p.name,_custom:true})),...BPCS_LIST];
+  const combined=[...custom.map(p=>({code:p.code,name:p.name,_c:true})),...BPCS_LIST];
   activeIdx=-1;
-  const filtered=query?combined.filter(b=>b.code.toLowerCase().includes(query.toLowerCase())||b.name.toLowerCase().includes(query.toLowerCase())).slice(0,50):combined.slice(0,50);
-  if(filtered.length===0){dropdown.innerHTML='<div class="bpcs-empty">검색 결과 없음 — 직접 입력도 가능해요</div>';}
-  else{
-    dropdown.innerHTML=filtered.map((b,i)=>`
-      <div class="bpcs-item" data-code="${b.code}" data-name="${b.name}" data-idx="${i}">
-        <div class="bpcs-code">${highlight(b.code,query)}${b._custom?' <span style="font-size:10px;color:#6fcf5a">[직접추가]</span>':''}</div>
-        <div class="bpcs-name">${highlight(b.name,query)}</div>
-      </div>`).join('');
-    dropdown.querySelectorAll('.bpcs-item').forEach(el=>el.addEventListener('click',()=>selectBpcs(el.dataset.code,el.dataset.name)));
-  }
+  const filtered=q?combined.filter(b=>b.code.toLowerCase().includes(q.toLowerCase())||b.name.toLowerCase().includes(q.toLowerCase())).slice(0,50):combined.slice(0,50);
+  dropdown.innerHTML=filtered.length===0
+    ?'<div class="bpcs-empty">검색 결과 없음 — 직접 입력 가능</div>'
+    :filtered.map((b,i)=>`<div class="bpcs-item" data-code="${b.code}" data-name="${b.name}"><div class="bpcs-code">${hl(b.code,q)}${b._c?' <span style="font-size:10px;color:#6fcf5a">[직접추가]</span>':''}</div><div class="bpcs-name">${hl(b.name,q)}</div></div>`).join('');
+  dropdown.querySelectorAll('.bpcs-item').forEach(el=>el.addEventListener('click',()=>selBpcs(el.dataset.code,el.dataset.name)));
   dropdown.classList.add('open');
 }
-
-function selectBpcs(code,name){
+function selBpcs(code,name){
   selectedBpcs={code,name};
   bpcsInput.value=code;
-  bpcsTag.innerHTML=`<div class="bpcs-selected-tag">✓ ${name}</div>`;
-  closeDropdown();
-  // 최신 이미지 정보 표시
-  const latest=getLatestByCode(code);
-  if(latest){
-    latestInfo.innerHTML=`
-      <div class="latest-info">
-        ${latest.imageDataUrl?`<img src="${latest.imageDataUrl}" />`:'<div style="width:40px;height:40px;border-radius:6px;background:var(--thumb-bg);display:flex;align-items:center;justify-content:center">📦</div>'}
-        <div class="latest-info-text">
-          <div style="font-size:12px;font-weight:600;color:var(--text-primary)">이전 라벨 있음</div>
-          <div style="font-size:11px;color:var(--text-muted);margin-top:2px">${latest.date} 입고 · 저장 시 텍스트 비교</div>
-        </div>
-        <span class="latest-badge">비교 대기</span>
-      </div>`;
-  } else {
-    latestInfo.innerHTML=`<div style="font-size:12px;color:var(--text-muted);margin-top:8px;padding:0 2px">첫 번째 입고 — 비교 기준으로 저장됩니다</div>`;
-  }
+  document.getElementById('bpcsTag').innerHTML=`<div class="bpcs-tag">✓ ${name}</div>`;
+  closeDD();
+  // 사진이 이미 업로드돼 있으면 비교 카드 갱신
+  if(selectedFiles.length>0)triggerCompare();
 }
-
-function clearBpcs(){selectedBpcs=null;bpcsInput.value='';bpcsTag.innerHTML='';latestInfo.innerHTML='';closeDropdown();bpcsInput.focus();}
-function closeDropdown(){dropdown.classList.remove('open');activeIdx=-1;}
+function clearBpcs(){selectedBpcs=null;bpcsInput.value='';document.getElementById('bpcsTag').innerHTML='';closeDD();bpcsInput.focus();}
+function closeDD(){dropdown.classList.remove('open');activeIdx=-1;}
 
 // ── 사진 업로드 ──
 let selectedFiles=[];
 const fileInput=document.getElementById('fileInput');
-const previewGrid=document.getElementById('previewGrid');
 const uploadZone=document.getElementById('uploadZone');
+
 fileInput.addEventListener('change',(e)=>handleFiles(e.target.files));
 uploadZone.addEventListener('dragover',(e)=>{e.preventDefault();uploadZone.classList.add('drag-over');});
 uploadZone.addEventListener('dragleave',()=>uploadZone.classList.remove('drag-over'));
 uploadZone.addEventListener('drop',(e)=>{e.preventDefault();uploadZone.classList.remove('drag-over');handleFiles(e.dataTransfer.files);});
-function handleFiles(files){Array.from(files).forEach(file=>{if(!file.type.startsWith('image/'))return;const reader=new FileReader();reader.onload=(e)=>{selectedFiles.push({name:file.name,dataUrl:e.target.result});renderPreviews();};reader.readAsDataURL(file);});}
-function renderPreviews(){previewGrid.innerHTML='';selectedFiles.forEach((f,i)=>{const div=document.createElement('div');div.className='preview-item';div.innerHTML=`<img src="${f.dataUrl}" /><button class="remove-btn" onclick="removeFile(${i})">✕</button>`;previewGrid.appendChild(div);});}
-function removeFile(index){selectedFiles.splice(index,1);renderPreviews();}
 
-// ── 최신 이미지 저장소 ──
-function getLatestStore(){return JSON.parse(localStorage.getItem('labelLatest')||'{}');}
-function getLatestByCode(code){return getLatestStore()[code]||null;}
-function saveLatest(code,data){const store=getLatestStore();store[code]=data;localStorage.setItem('labelLatest',JSON.stringify(store));}
-
-// ── OCR ──
-async function runOCR(imageDataUrl){
-  return new Promise(async(resolve)=>{
-    try{
-      const worker=await Tesseract.createWorker('eng',1,{
-        workerPath:'https://unpkg.com/tesseract.js@4.1.1/dist/worker.min.js',
-        langPath:'https://tessdata.projectnaptha.com/4.0.0',
-        corePath:'https://unpkg.com/tesseract.js-core@4.0.4/tesseract-core.wasm.js',
-        logger:(m)=>{
-          if(m.status==='recognizing text'){
-            document.getElementById('ocrProgress').textContent=`분석 중... ${Math.round(m.progress*100)}%`;
-          }
-        }
-      });
-      const {data:{text}}=await worker.recognize(imageDataUrl);
-      await worker.terminate();
-      resolve(text.trim());
-    }catch(e){
-      console.error('OCR error',e);
-      resolve('');
-    }
+function handleFiles(files){
+  const newFiles=Array.from(files).filter(f=>f.type.startsWith('image/'));
+  if(!newFiles.length)return;
+  let loaded=0;
+  newFiles.forEach(file=>{
+    const reader=new FileReader();
+    reader.onload=(e)=>{
+      selectedFiles.push({name:file.name,dataUrl:e.target.result});
+      loaded++;
+      if(loaded===newFiles.length)triggerCompare();
+    };
+    reader.readAsDataURL(file);
   });
 }
 
-// ── diff 계산 ──
+// ── 비교 카드 표시 & OCR ──
+let ocrAborted=false;
+
+async function triggerCompare(){
+  if(!selectedFiles.length)return;
+  ocrAborted=false;
+  const bpcsCode=bpcsInput.value.trim();
+  const latest=bpcsCode?getLatestByCode(bpcsCode):null;
+
+  // 비교 카드 표시
+  const card=document.getElementById('compareCard');
+  card.classList.add('show');
+  document.getElementById('saveBtn').style.display='block';
+
+  // 이전 이미지
+  const prevImg=document.getElementById('prevImg');
+  const prevEmpty=document.getElementById('prevEmpty');
+  if(latest&&latest.imageDataUrl){
+    prevImg.src=latest.imageDataUrl;
+    prevImg.style.display='block';
+    prevEmpty.style.display='none';
+    document.getElementById('compareStatus').textContent=`이전: ${latest.date}`;
+  }else{
+    prevImg.style.display='none';
+    prevEmpty.style.display='flex';
+    document.getElementById('compareStatus').textContent='첫 입고';
+  }
+
+  // 새 이미지 썸네일
+  const newThumbs=document.getElementById('newThumbs');
+  if(selectedFiles.length===1){
+    newThumbs.className='new-thumbs single';
+    newThumbs.innerHTML=`<img src="${selectedFiles[0].dataUrl}" style="aspect-ratio:1"/>`;
+  }else{
+    newThumbs.className='new-thumbs';
+    newThumbs.innerHTML=selectedFiles.map(f=>`<img src="${f.dataUrl}"/>`).join('');
+  }
+
+  // OCR 시작
+  const ocrSt=document.getElementById('ocrStatus');
+  const ocrTxt=document.getElementById('ocrStatusText');
+  const diffSec=document.getElementById('diffSection');
+  ocrSt.style.display='flex';
+  diffSec.style.display='none';
+  document.getElementById('saveBtn').disabled=true;
+
+  let allTexts=[];
+  for(let i=0;i<selectedFiles.length;i++){
+    if(ocrAborted)return;
+    ocrTxt.textContent=`OCR 분석 중... (${i+1}/${selectedFiles.length}장)`;
+    const t=await runOCR(selectedFiles[i].dataUrl,(p)=>{
+      ocrTxt.textContent=`OCR 분석 중... (${i+1}/${selectedFiles.length}장) ${Math.round(p*100)}%`;
+    });
+    if(t)allTexts.push(t);
+  }
+
+  const newText=allTexts.join('\n---\n');
+
+  // diff 계산
+  ocrSt.style.display='none';
+  diffSec.style.display='block';
+
+  if(!latest||!latest.ocrText){
+    diffSec.innerHTML=`<div class="diff-ok">✅ 이전 라벨 없음 — 이번 입고가 기준이 됩니다</div>`;
+  }else{
+    const diff=computeDiff(latest.ocrText,newText);
+    const changes=diff.filter(d=>d.type!=='same');
+    if(changes.length===0){
+      diffSec.innerHTML=`<div class="diff-ok">✅ 이전 라벨과 동일합니다</div>`;
+    }else{
+      let html=`<div class="diff-label">⚠️ 변경된 내용 (${changes.length}건)</div>`;
+      changes.forEach(d=>{
+        html+=`<div class="diff-line ${d.type}">${d.type==='add'?'＋':'－'} ${escHtml(d.text)}</div>`;
+      });
+      const same=diff.filter(d=>d.type==='same');
+      if(same.length){
+        html+=`<div class="diff-label" style="margin-top:10px">동일 항목 (${same.length}건)</div>`;
+        same.slice(0,4).forEach(d=>{html+=`<div class="diff-line same">　${escHtml(d.text)}</div>`;});
+        if(same.length>4)html+=`<div style="font-size:12px;color:var(--text-muted);padding:4px 10px">... 외 ${same.length-4}줄</div>`;
+      }
+      diffSec.innerHTML=html;
+    }
+  }
+
+  // 저장 가능하게
+  document.getElementById('saveBtn').disabled=false;
+  // pendingOcr에 저장
+  pendingOcrText=newText;
+}
+
+let pendingOcrText='';
+
+// ── OCR ──
+async function runOCR(imageDataUrl,onProgress){
+  try{
+    const worker=await Tesseract.createWorker('eng',1,{
+      workerPath:'https://unpkg.com/tesseract.js@4.1.1/dist/worker.min.js',
+      langPath:'https://tessdata.projectnaptha.com/4.0.0',
+      corePath:'https://unpkg.com/tesseract.js-core@4.0.4/tesseract-core.wasm.js',
+      logger:(m)=>{if(m.status==='recognizing text'&&onProgress)onProgress(m.progress);}
+    });
+    const {data:{text}}=await worker.recognize(imageDataUrl);
+    await worker.terminate();
+    return text.trim();
+  }catch(e){return '';}
+}
+
+// ── diff ──
 function computeDiff(oldText,newText){
   const oldLines=oldText.split('\n').filter(l=>l.trim());
   const newLines=newText.split('\n').filter(l=>l.trim());
-  const result=[];
-  const oldSet=new Set(oldLines);
-  const newSet=new Set(newLines);
-  const allLines=[...new Set([...oldLines,...newLines])];
-  allLines.forEach(line=>{
-    if(oldSet.has(line)&&newSet.has(line)){result.push({type:'same',text:line});}
-    else if(!oldSet.has(line)&&newSet.has(line)){result.push({type:'add',text:line});}
-    else if(oldSet.has(line)&&!newSet.has(line)){result.push({type:'del',text:line});}
+  const oldSet=new Set(oldLines),newSet=new Set(newLines);
+  const all=[...new Set([...oldLines,...newLines])];
+  return all.map(line=>{
+    if(oldSet.has(line)&&newSet.has(line))return{type:'same',text:line};
+    if(!oldSet.has(line))return{type:'add',text:line};
+    return{type:'del',text:line};
   });
-  return result;
 }
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
-// ── 저장 대기 데이터 ──
-let pendingSave=null;
-
-async function saveRecord(){
+// ── 저장 ──
+function saveRecord(){
   const date=document.getElementById('date').value;
   const bpcsCode=bpcsInput.value.trim();
   const bpcsName=selectedBpcs?selectedBpcs.name:'';
   const po=document.getElementById('po').value.trim();
   if(!date||!bpcsCode||!po){alert('날짜, BPCS CODE, PO#을 모두 입력해주세요.');return;}
-  if(selectedFiles.length===0){alert('입고 사진을 1장 이상 업로드해주세요.');return;}
-
-  const saveBtn=document.getElementById('saveBtn');
-  saveBtn.disabled=true;
-
-  // OCR 실행
-  const overlay=document.getElementById('ocrOverlay');
-  overlay.classList.add('show');
-  document.getElementById('ocrLabel').textContent='🔍 라벨 텍스트 분석 중...';
-  document.getElementById('ocrProgress').textContent='첫 번째 사진 처리 중';
-
-  // 모든 이미지 OCR
-  let allTexts=[];
-  for(let i=0;i<selectedFiles.length;i++){
-    document.getElementById('ocrLabel').textContent=`🔍 라벨 텍스트 분석 중... (${i+1}/${selectedFiles.length}장)`;
-    document.getElementById('ocrProgress').textContent='';
-    const t=await runOCR(selectedFiles[i].dataUrl);
-    if(t)allTexts.push(t);
-  }
-  const newText=allTexts.join('\n---\n');
-  overlay.classList.remove('show');
-  saveBtn.disabled=false;
+  if(!selectedFiles.length){alert('입고 사진을 1장 이상 업로드해주세요.');return;}
 
   const newRecord={
-    id:Date.now(), date, bpcs:bpcsCode, bpcsName, po,
+    id:Date.now(),date,bpcs:bpcsCode,bpcsName,po,
     photos:selectedFiles.map(f=>f.dataUrl),
-    ocrText:newText,
+    ocrText:pendingOcrText,
     savedAt:new Date().toISOString()
   };
 
-  const latest=getLatestByCode(bpcsCode);
-
-  if(latest&&latest.ocrText){
-    // 텍스트 비교
-    const diff=computeDiff(latest.ocrText,newText);
-    const hasChange=diff.some(d=>d.type!=='same');
-    if(hasChange){
-      // 변경 있음 → 모달
-      pendingSave={newRecord,bpcsCode,newText,imageDataUrl:selectedFiles[0].dataUrl};
-      showDiffModal(latest,diff);
-      return;
-    }
-  }
-
-  // 변경 없거나 첫 입고 → 바로 저장
-  doSave(newRecord,bpcsCode,newText,selectedFiles[0].dataUrl);
-}
-
-function showDiffModal(latest,diff){
-  document.getElementById('modalSub').textContent=
-    `이전 입고(${latest.date})와 텍스트가 다릅니다`;
-  const changes=diff.filter(d=>d.type!=='same');
-  const same=diff.filter(d=>d.type==='same');
-  let html='';
-  if(changes.length){
-    html+=`<div class="diff-block">
-      <div class="diff-label">변경된 내용 (${changes.length}건)</div>`;
-    changes.forEach(d=>{
-      const icon=d.type==='add'?'＋':'－';
-      html+=`<div class="diff-line ${d.type}">${icon} ${escHtml(d.text)}</div>`;
-    });
-    html+='</div>';
-  }
-  if(same.length){
-    html+=`<div class="diff-block">
-      <div class="diff-label">동일한 내용 (${same.length}건)</div>`;
-    same.slice(0,5).forEach(d=>{html+=`<div class="diff-line same">  ${escHtml(d.text)}</div>`;});
-    if(same.length>5)html+=`<div style="font-size:12px;color:var(--text-muted);padding:4px 10px">... 외 ${same.length-5}줄</div>`;
-    html+='</div>';
-  }
-  document.getElementById('diffContent').innerHTML=html;
-  document.getElementById('modalBackdrop').classList.add('show');
-}
-
-function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-
-function closeModal(){
-  document.getElementById('modalBackdrop').classList.remove('show');
-  pendingSave=null;
-}
-
-function confirmSave(){
-  if(!pendingSave)return;
-  doSave(pendingSave.newRecord,pendingSave.bpcsCode,pendingSave.newText,pendingSave.imageDataUrl);
-  closeModal();
-}
-
-function doSave(newRecord,bpcsCode,newText,imageDataUrl){
   // 입고 기록 저장
   const records=JSON.parse(localStorage.getItem('labelRecords')||'[]');
   records.unshift(newRecord);
   localStorage.setItem('labelRecords',JSON.stringify(records));
 
-  // 최신 이미지 교체 (이전 이미지 삭제 = 덮어쓰기)
-  saveLatest(bpcsCode,{
-    bpcs:bpcsCode,
-    bpcsName:newRecord.bpcsName,
-    date:newRecord.date,
-    po:newRecord.po,
-    imageDataUrl:newRecord.photos[0],
-    allImages:newRecord.photos,
-    ocrText:newText,
+  // 최신 이미지 교체
+  const store=JSON.parse(localStorage.getItem('labelLatest')||'{}');
+  store[bpcsCode]={
+    bpcs:bpcsCode,bpcsName,date,po,
+    imageDataUrl:selectedFiles[0].dataUrl,
+    allImages:selectedFiles.map(f=>f.dataUrl),
+    ocrText:pendingOcrText,
     savedAt:newRecord.savedAt
-  });
+  };
+  localStorage.setItem('labelLatest',JSON.stringify(store));
 
-  // 폼 초기화
+  // ── 화면 리셋 ──
+  ocrAborted=true;
   document.getElementById('date').valueAsDate=new Date();
   clearBpcs();
   document.getElementById('po').value='';
-  selectedFiles=[]; renderPreviews(); fileInput.value='';
-  showToast(); renderRecords();
+  selectedFiles=[];
+  fileInput.value='';
+  pendingOcrText='';
+  document.getElementById('compareCard').classList.remove('show');
+  document.getElementById('saveBtn').style.display='none';
+
+  showToast();
+  renderRecords();
 }
+
+// ── 최신 저장소 ──
+function getLatestByCode(code){return JSON.parse(localStorage.getItem('labelLatest')||'{}')[code]||null;}
+function getCustomProducts(){return JSON.parse(localStorage.getItem('customProducts')||'[]');}
 
 function showToast(){const t=document.getElementById('toast');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 
 function renderRecords(){
   const records=JSON.parse(localStorage.getItem('labelRecords')||'[]');
   const list=document.getElementById('recordList');
-  if(records.length===0){list.innerHTML='<div class="no-records">아직 저장된 기록이 없어요</div>';return;}
+  if(!records.length){list.innerHTML='<div class="no-records">아직 저장된 기록이 없어요</div>';return;}
   list.innerHTML=records.map(r=>`
     <div class="record-item">
-      ${r.photos&&r.photos.length>0?`<img class="record-thumb" src="${r.photos[0]}" />`:`<div class="record-thumb-empty">📦</div>`}
-      <div class="record-info">
-        <div class="record-po">PO# ${r.po}</div>
-        <div class="record-meta">${r.date} · ${r.bpcs}${r.bpcsName?' · '+r.bpcsName.substring(0,16)+'…':''}</div>
-        <div class="record-meta">사진 ${r.photos?r.photos.length:0}장${r.ocrText?` · OCR ✓ (${r.photos.length}장 분석)`:''}</div>
+      ${r.photos?.length?`<img class="rec-thumb" src="${r.photos[0]}" />`:`<div class="rec-thumb-empty">📦</div>`}
+      <div class="rec-info">
+        <div class="rec-po">PO# ${r.po}</div>
+        <div class="rec-meta">${r.date} · ${r.bpcs}${r.bpcsName?' · '+r.bpcsName.substring(0,14)+'…':''}</div>
+        <div class="rec-meta">사진 ${r.photos?.length||0}장${r.ocrText?' · OCR ✓':''}</div>
       </div>
       <span class="badge">입고</span>
     </div>`).join('');
 }
 
+// ── 탭 ──
+function switchTab(tab){
+  ['register','product'].forEach(t=>{
+    document.getElementById('tab-'+t).classList.toggle('active',t===tab);
+    document.getElementById('panel-'+t).classList.toggle('active',t===tab);
+  });
+}
+
 // ── 제품 추가 ──
-function switchTab(tab){['register','product'].forEach(t=>{document.getElementById('tab-'+t).classList.toggle('active',t===tab);document.getElementById('panel-'+t).classList.toggle('active',t===tab);});}
-function getCustomProducts(){return JSON.parse(localStorage.getItem('customProducts')||'[]');}
 function saveProduct(){
-  const name=document.getElementById('newProductName').value.trim();
-  let code=document.getElementById('newProductCode').value.trim();
-  const memo=document.getElementById('newProductMemo').value.trim();
+  const name=document.getElementById('newName').value.trim();
+  let code=document.getElementById('newCode').value.trim();
+  const memo=document.getElementById('newMemo').value.trim();
   if(!name){alert('제품명을 입력해주세요.');return;}
-  if(!code){const existing=getCustomProducts();const num=String(existing.length+1).padStart(3,'0');code='CUSTOM-'+num;}
+  if(!code){const ex=getCustomProducts();code='CUSTOM-'+String(ex.length+1).padStart(3,'0');}
   const products=getCustomProducts();
-  if(products.find(p=>p.code===code)||BPCS_LIST.find(b=>b.code===code)){if(!confirm(`코드 "${code}" 가 이미 존재해요. 그래도 추가할까요?`))return;}
+  if(products.find(p=>p.code===code)||BPCS_LIST.find(b=>b.code===code)){if(!confirm(`코드 "${code}" 이미 존재해요. 그래도 추가할까요?`))return;}
   products.unshift({code,name,memo,addedAt:new Date().toISOString()});
   localStorage.setItem('customProducts',JSON.stringify(products));
-  document.getElementById('newProductName').value='';
-  document.getElementById('newProductCode').value='';
-  document.getElementById('newProductMemo').value='';
-  showToast(); renderProductList();
+  document.getElementById('newName').value='';document.getElementById('newCode').value='';document.getElementById('newMemo').value='';
+  showToast();renderProductList();
 }
-function deleteProduct(code){if(!confirm(`"${code}" 제품을 삭제할까요?`))return;const products=getCustomProducts().filter(p=>p.code!==code);localStorage.setItem('customProducts',JSON.stringify(products));renderProductList();}
+function deleteProduct(code){if(!confirm(`"${code}" 삭제할까요?`))return;localStorage.setItem('customProducts',JSON.stringify(getCustomProducts().filter(p=>p.code!==code)));renderProductList();}
 function renderProductList(){
   const products=getCustomProducts();
   const list=document.getElementById('productList');
-  if(products.length===0){list.innerHTML='<div class="no-records">아직 추가된 제품이 없어요</div>';return;}
+  if(!products.length){list.innerHTML='<div class="no-records">아직 추가된 제품이 없어요</div>';return;}
   list.innerHTML=products.map(p=>`
     <div class="product-item">
       <div class="product-icon">🆕</div>
-      <div class="product-info">
-        <div class="product-name">${p.name}</div>
-        <div class="product-code">${p.code}${p.memo?' · '+p.memo:''}</div>
-      </div>
+      <div class="product-info"><div class="product-name">${p.name}</div><div class="product-code">${p.code}${p.memo?' · '+p.memo:''}</div></div>
       <span class="custom-badge" style="margin-right:6px">직접추가</span>
-      <button class="product-delete" onclick="deleteProduct('${p.code}')">✕</button>
+      <button class="product-del" onclick="deleteProduct('${p.code}')">✕</button>
     </div>`).join('');
 }
 
