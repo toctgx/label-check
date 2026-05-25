@@ -62,13 +62,18 @@
     .bpcs-clear:hover{border-color:var(--accent);color:var(--accent);}
     .bpcs-dropdown{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--dropdown-bg);border:1.5px solid var(--accent);border-radius:12px;max-height:240px;overflow-y:auto;z-index:100;box-shadow:0 8px 24px rgba(0,0,0,.3);display:none;}
     .bpcs-dropdown.open{display:block;}
-    .bpcs-item{padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .1s;}
+    .bpcs-item{padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .1s;display:flex;align-items:center;gap:8px;}
+    .bpcs-item-main{flex:1;min-width:0;}
     .bpcs-item:last-child{border-bottom:none;}
     .bpcs-item:hover,.bpcs-item.hi{background:var(--dropdown-hover);}
     .bpcs-code{font-size:13px;font-weight:700;color:var(--accent);}
     .bpcs-name{font-size:12px;color:var(--text-secondary);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .hl{color:var(--accent);font-weight:700;}
     .bpcs-empty{padding:16px 14px;font-size:13px;color:var(--text-muted);text-align:center;}
+    .bpcs-item-actions{display:flex;gap:4px;flex-shrink:0;}
+    .bpcs-dd-btn{width:28px;height:28px;border-radius:7px;border:1.5px solid var(--border);background:var(--surface2);color:var(--text-muted);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;padding:0;}
+    .bpcs-dd-btn:hover{border-color:var(--accent);color:var(--accent);}
+    .bpcs-dd-btn.del:hover{border-color:#e05c5c;color:#e05c5c;}
     .bpcs-tag{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:4px 10px;background:var(--accent-soft);border:1px solid var(--accent);border-radius:20px;font-size:12px;color:var(--accent);font-weight:600;}
 
     /* 업로드 */
@@ -463,7 +468,21 @@ function renderDD(q){
   const filtered=q?combined.filter(b=>b.code.toLowerCase().includes(q.toLowerCase())||b.name.toLowerCase().includes(q.toLowerCase())).slice(0,50):combined.slice(0,50);
   dropdown.innerHTML=filtered.length===0
     ?'<div class="bpcs-empty">검색 결과 없음 — 직접 입력 가능</div>'
-    :filtered.map((b,i)=>`<div class="bpcs-item" data-code="${b.code}" data-name="${b.name}"><div class="bpcs-code">${hl(b.code,q)}${b._c?' <span style="font-size:10px;color:#6fcf5a">[직접추가]</span>':''}</div><div class="bpcs-name">${hl(b.name,q)}</div></div>`).join('');
+    :filtered.map((b,i)=>{
+      const actions=b._c
+        ?`<div class="bpcs-item-actions" onclick="event.stopPropagation()">
+            <button class="bpcs-dd-btn edit" title="수정" onclick="editProductFromDD('${b.code}')">✏️</button>
+            <button class="bpcs-dd-btn del" title="삭제" onclick="deleteProductFromDD('${b.code}')">✕</button>
+          </div>`
+        :'';
+      return `<div class="bpcs-item" data-code="${b.code}" data-name="${b.name}">
+        <div class="bpcs-item-main">
+          <div class="bpcs-code">${hl(b.code,q)}${b._c?' <span style="font-size:10px;color:#6fcf5a">[직접추가]</span>':''}</div>
+          <div class="bpcs-name">${hl(b.name,q)}</div>
+        </div>
+        ${actions}
+      </div>`;
+    }).join('');
   dropdown.querySelectorAll('.bpcs-item').forEach(el=>el.addEventListener('click',()=>selBpcs(el.dataset.code,el.dataset.name)));
   dropdown.classList.add('open');
 }
@@ -715,6 +734,43 @@ function saveProduct(){
   showToast();renderProductList();
 }
 function deleteProduct(code){if(!confirm(`"${code}" 삭제할까요?`))return;localStorage.setItem('customProducts',JSON.stringify(getCustomProducts().filter(p=>p.code!==code)));renderProductList();}
+function deleteProductFromDD(code){
+  const p=getCustomProducts().find(p=>p.code===code);
+  if(!p)return;
+  if(!confirm(`"${p.name}" 삭제할까요?`))return;
+  localStorage.setItem('customProducts',JSON.stringify(getCustomProducts().filter(x=>x.code!==code)));
+  renderDD(bpcsInput.value.trim());
+  renderProductList();
+  if(selectedBpcs&&selectedBpcs.code===code)clearBpcs();
+}
+function editProductFromDD(code){
+  const products=getCustomProducts();
+  const idx=products.findIndex(p=>p.code===code);
+  if(idx<0)return;
+  const p=products[idx];
+  const newName=prompt('제품명 수정:',p.name);
+  if(newName===null)return;
+  if(!newName.trim()){alert('제품명을 입력해주세요.');return;}
+  const newCode=prompt('BPCS 코드 수정:',p.code);
+  if(newCode===null)return;
+  if(!newCode.trim()){alert('코드를 입력해주세요.');return;}
+  const newMemo=prompt('메모 수정:',p.memo||'');
+  if(newMemo===null)return;
+  // 코드 변경 시 중복 체크
+  if(newCode!==code&&(products.find(x=>x.code===newCode)||BPCS_LIST.find(b=>b.code===newCode))){
+    if(!confirm(`코드 "${newCode}" 이미 존재해요. 그래도 적용할까요?`))return;
+  }
+  products[idx]={...p,code:newCode.trim(),name:newName.trim(),memo:newMemo.trim(),updatedAt:new Date().toISOString()};
+  localStorage.setItem('customProducts',JSON.stringify(products));
+  if(selectedBpcs&&selectedBpcs.code===code){
+    selectedBpcs={code:newCode.trim(),name:newName.trim()};
+    bpcsInput.value=newCode.trim();
+    document.getElementById('bpcsTag').innerHTML=`<div class="bpcs-tag">✓ ${newName.trim()}</div>`;
+  }
+  renderDD(bpcsInput.value.trim());
+  renderProductList();
+  showToast();
+}
 function renderProductList(){
   const products=getCustomProducts();
   const list=document.getElementById('productList');
