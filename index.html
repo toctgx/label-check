@@ -132,8 +132,12 @@
 
     /* Diff detail in 현황 */
     .label-item{flex-direction:column;align-items:flex-start;}
-    .label-item-row{display:flex;align-items:center;gap:10px;width:100%;}
-    .diff-detail{width:100%;margin-top:8px;padding-top:8px;border-top:1px solid #eee;}
+    .label-item-row{display:flex;align-items:center;gap:10px;width:100%;cursor:pointer;}
+    .label-item-row:hover{opacity:.85;}
+    .expand-arrow{font-size:11px;color:#aaa;margin-left:auto;flex-shrink:0;transition:transform .2s;}
+    .expand-arrow.open{transform:rotate(180deg);}
+    .diff-detail{display:none;width:100%;margin-top:8px;padding-top:8px;border-top:1px solid #eee;}
+    .diff-detail.open{display:block;}
     .diff-detail-imgs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;}
     .diff-detail-imgs img{width:100%;border-radius:4px;border:1px solid #ddd;display:block;}
     .diff-detail-imgs .diff-overlay{border-color:#ffc107;}
@@ -827,18 +831,32 @@ async function renderLabelList() {
       </div>`;
     }
 
-    return `<div class="label-item">
-      <div class="label-item-row">
+    const itemId   = 'item-' + l.code.replace(/[^a-zA-Z0-9]/g, '_');
+    const hasDetail = l.changed && diffDetail;
+    const arrow     = hasDetail ? `<span class="expand-arrow" id="arr-${itemId}">&#9660;</span>` : '';
+    const rowClick  = hasDetail ? `onclick="toggleDetail('${itemId}')"` : '';
+
+    return `<div class="label-item" id="${itemId}">
+      <div class="label-item-row" ${rowClick}>
         <img class="label-img" src="${l.imageDataUrl}" alt="${l.code}"/>
         <div class="label-info">
           <div class="label-code">${l.code}${nameMap[l.code] ? '  ·  ' + nameMap[l.code] : ''}</div>
           <div class="label-meta">${l.date}${l.po ? '  ·  PO: ' + l.po : ''}${l.diffPct ? '  ·  차이 ' + l.diffPct.toFixed(2) + '%' : ''}</div>
         </div>
-        ${badge}${confirmBtn}
+        ${badge}${confirmBtn}${arrow}
       </div>
       ${diffDetail}
     </div>`;
   }).join('');
+}
+
+function toggleDetail(itemId) {
+  const item   = document.getElementById(itemId);
+  const detail = item ? item.querySelector('.diff-detail') : null;
+  const arrow  = document.getElementById('arr-' + itemId);
+  if (!detail) return;
+  const isOpen = detail.classList.toggle('open');
+  if (arrow) arrow.classList.toggle('open', isOpen);
 }
 
 async function confirmChange(code) {
