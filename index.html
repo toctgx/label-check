@@ -114,6 +114,17 @@
     canvas{display:none;}
     .confirm-btn{background:none;border:1.5px solid #555;border-radius:4px;padding:3px 8px;font-size:11px;font-weight:700;cursor:pointer;color:#555;margin-left:6px;white-space:nowrap;}
     .confirm-btn:hover{background:#555;color:#fff;}
+
+    /* Diff detail in 현황 */
+    .label-item{flex-direction:column;align-items:flex-start;}
+    .label-item-row{display:flex;align-items:center;gap:10px;width:100%;}
+    .diff-detail{width:100%;margin-top:8px;padding-top:8px;border-top:1px solid #eee;}
+    .diff-detail-imgs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;}
+    .diff-detail-imgs img{width:100%;border-radius:4px;border:1px solid #ddd;display:block;}
+    .diff-detail-imgs .diff-overlay{border-color:#ffc107;}
+    .diff-img-label{font-size:10px;color:#999;text-align:center;margin-top:2px;}
+    .diff-regions{font-size:12px;color:#856404;background:#fff3cd;border:1px solid #ffc107;border-radius:4px;padding:6px 10px;line-height:1.6;}
+    .diff-regions strong{display:block;font-size:11px;color:#666;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px;}
   </style>
 </head>
 <body>
@@ -517,14 +528,15 @@ async function runComparison() {
   document.getElementById('prevContent').innerHTML =
     `<img src="${prev.imageDataUrl}" style="width:100%;display:block;"/>`;
 
-  const pct     = await compareImages(prev.imageDataUrl, newImages[0]);
-  const changed = pct > threshold;
-  lastDiff = { pct, changed };
+  const result  = await compareImages(prev.imageDataUrl, newImages[0]);
+  const changed  = result.pct > threshold;
+  lastDiff = { pct: result.pct, changed, diffUrl: result.diffUrl, regions: result.regions };
 
   if (changed) {
-    setDiffResult('diff-changed', `변경 감지 — 픽셀 차이 ${pct.toFixed(2)}% (임계값 ${threshold}%)`);
+    const regionTxt = result.regions.length ? `\n변경 영역: ${result.regions.join(', ')}` : '';
+    setDiffResult('diff-changed', `변경 감지 — 픽셀 차이 ${result.pct.toFixed(2)}% (${threshold}%기준)${regionTxt}`);
   } else {
-    setDiffResult('diff-same', `변경 없음 — 픽셀 차이 ${pct.toFixed(2)}% (임계값 ${threshold}%)`);
+    setDiffResult('diff-same', `변경 없음 — 픽셀 차이 ${result.pct.toFixed(2)}% (${threshold}%기준)`);
   }
   document.getElementById('saveBtn').style.display = 'block';
 }
@@ -536,8 +548,16 @@ function setDiffResult(cls, text) {
 }
 
 // ── Pixel comparison (Canvas API) ───────────────────
+const REGION_NAMES = [
+  ['상단 좌측', '상단 중앙', '상단 우측'],
+  ['중앙 좌측', '중앙',     '중앙 우측'],
+  ['하단 좌측', '하단 중앙', '하단 우측']
+];
+
 async function compareImages(src1, src2) {
   const SIZE = 256;
+  const GRID = 3;
+  const CELL = SIZE / GRID;
   const c1 = document.getElementById('canvas1');
   const c2 = document.getElementById('canvas2');
   c1.width = c2.width = c1.height = c2.height = SIZE;
@@ -548,11 +568,57 @@ async function compareImages(src1, src2) {
   const d1 = c1.getContext('2d').getImageData(0, 0, SIZE, SIZE).data;
   const d2 = c2.getContext('2d').getImageData(0, 0, SIZE, SIZE).data;
 
-  let diff = 0;
-  for (let i = 0; i < d1.length; i += 4) {
-    if ((Math.abs(d1[i]-d2[i]) + Math.abs(d1[i+1]-d2[i+1]) + Math.abs(d1[i+2]-d2[i+2])) / 3 > 15) diff++;
+  // Region diff counters
+  const rDiff  = Array.from({length:GRID}, () => new Array(GRID).fill(0));
+  const rTotal = Array.from({length:GRID}, () => new Array(GRID).fill(0));
+
+  // Diff image data
+  const diffCanvas = document.createElement('canvas');
+  diffCanvas.width = diffCanvas.height = SIZE;
+  const diffCtx  = diffCanvas.getContext('2d');
+  const diffData = diffCtx.createImageData(SIZE, SIZE);
+
+  let totalDiff = 0;
+  const total   = SIZE * SIZE;
+
+  for (let py = 0; py < SIZE; py++) {
+    for (let px = 0; px < SIZE; px++) {
+      const i  = (py * SIZE + px) * 4;
+      const gy = Math.min(Math.floor(py / CELL), GRID - 1);
+      const gx = Math.min(Math.floor(px / CELL), GRID - 1);
+      const avgDiff = (Math.abs(d1[i]-d2[i]) + Math.abs(d1[i+1]-d2[i+1]) + Math.abs(d1[i+2]-d2[i+2])) / 3;
+      const isDiff  = avgDiff > 15;
+
+      rTotal[gy][gx]++;
+      if (isDiff) { rDiff[gy][gx]++; totalDiff++; }
+
+      // Diff overlay: changed = red tint, unchanged = dimmed original
+      if (isDiff) {
+        diffData.data[i]   = 220;
+        diffData.data[i+1] = 30;
+        diffData.data[i+2] = 30;
+        diffData.data[i+3] = 230;
+      } else {
+        diffData.data[i]   = d1[i]   * 0.45;
+        diffData.data[i+1] = d1[i+1] * 0.45;
+        diffData.data[i+2] = d1[i+2] * 0.45;
+        diffData.data[i+3] = 255;
+      }
+    }
   }
-  return (diff / (SIZE * SIZE)) * 100;
+
+  diffCtx.putImageData(diffData, 0, 0);
+  const diffUrl = diffCanvas.toDataURL('image/jpeg', 0.82);
+
+  // Collect changed regions (>3% diff within region)
+  const regions = [];
+  for (let gy = 0; gy < GRID; gy++) {
+    for (let gx = 0; gx < GRID; gx++) {
+      if ((rDiff[gy][gx] / rTotal[gy][gx]) * 100 > 3) regions.push(REGION_NAMES[gy][gx]);
+    }
+  }
+
+  return { pct: (totalDiff / total) * 100, diffUrl, regions };
 }
 
 function drawImg(canvas, src, size) {
@@ -577,13 +643,19 @@ async function saveLabel() {
   const changed = lastDiff ? lastDiff.changed : false;
   const pct     = lastDiff ? lastDiff.pct     : 0;
 
+  const diffUrl = lastDiff ? lastDiff.diffUrl   : null;
+  const regions  = lastDiff ? lastDiff.regions    : [];
+
   // 최신 1건만 유지 — 이전 것 자동 덮어쓰기
   await dbPut('labels', {
     code,
     imageDataUrl: newImages[0],
     date,
+    po,
     changed,
     diffPct: pct,
+    diffUrl,
+    regions,
     confirmed: false,
     savedAt: Date.now()
   });
@@ -635,13 +707,34 @@ async function renderLabelList() {
       ? `<button class="confirm-btn" onclick="confirmChange('${l.code}')">확인</button>`
       : '';
 
+    // 변경 세부 정보
+    let diffDetail = '';
+    if (l.changed) {
+      const regionText = (l.regions && l.regions.length)
+        ? l.regions.join(' · ')
+        : '영역 분석 없음 (신규 저장 시자동 분석)';
+      const diffImgHtml = l.diffUrl
+        ? `<div class="diff-detail-imgs">
+            <div><img src="${l.imageDataUrl}"/><div class="diff-img-label">최신 입고</div></div>
+            <div><img class="diff-overlay" src="${l.diffUrl}"/><div class="diff-img-label">변경 감지 (빨강=변경영역)</div></div>
+          </div>`
+        : '';
+      diffDetail = `<div class="diff-detail">
+        ${diffImgHtml}
+        <div class="diff-regions"><strong>변경 감지 영역</strong>${regionText}</div>
+      </div>`;
+    }
+
     return `<div class="label-item">
-      <img class="label-img" src="${l.imageDataUrl}" alt="${l.code}"/>
-      <div class="label-info">
-        <div class="label-code">${l.code}${nameMap[l.code] ? '  ·  ' + nameMap[l.code] : ''}</div>
-        <div class="label-meta">${l.date}${l.po ? '  ·  PO: ' + l.po : ''}${l.diffPct ? '  ·  차이 ' + l.diffPct.toFixed(2) + '%' : ''}</div>
+      <div class="label-item-row">
+        <img class="label-img" src="${l.imageDataUrl}" alt="${l.code}"/>
+        <div class="label-info">
+          <div class="label-code">${l.code}${nameMap[l.code] ? '  ·  ' + nameMap[l.code] : ''}</div>
+          <div class="label-meta">${l.date}${l.po ? '  ·  PO: ' + l.po : ''}${l.diffPct ? '  ·  차이 ' + l.diffPct.toFixed(2) + '%' : ''}</div>
+        </div>
+        ${badge}${confirmBtn}
       </div>
-      ${badge}${confirmBtn}
+      ${diffDetail}
     </div>`;
   }).join('');
 }
