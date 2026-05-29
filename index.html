@@ -62,6 +62,22 @@
     /* Section title */
     .section-title{font-size:11px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.6px;margin:20px 0 10px;}
 
+    /* BPCS Search */
+    .bpcs-wrap{position:relative;}
+    .bpcs-input{width:100%;padding:10px 12px;border:1.5px solid #ddd;border-radius:6px;font-size:15px;background:#fff;color:#1a1a1a;outline:none;}
+    .bpcs-input:focus{border-color:#555;}
+    .bpcs-dropdown{position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1.5px solid #555;border-radius:6px;max-height:220px;overflow-y:auto;z-index:200;box-shadow:0 4px 16px rgba(0,0,0,.12);display:none;}
+    .bpcs-dropdown.open{display:block;}
+    .bpcs-item{padding:9px 12px;cursor:pointer;border-bottom:1px solid #eee;font-size:14px;}
+    .bpcs-item:last-child{border-bottom:none;}
+    .bpcs-item:hover,.bpcs-item.hi{background:#f0f0f0;}
+    .bpcs-item-code{font-weight:700;color:#1a1a1a;}
+    .bpcs-item-name{font-size:12px;color:#888;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .bpcs-selected{display:none;margin-top:6px;padding:5px 10px;background:#e8f0ff;border:1px solid #aac4f5;border-radius:4px;font-size:12px;font-weight:700;color:#2255cc;}
+    .bpcs-selected.show{display:inline-block;}
+    .bpcs-empty{padding:12px;font-size:13px;color:#aaa;text-align:center;}
+    .hl{background:#fff3cd;border-radius:2px;}
+
     /* Lists */
     .list-box{border:1.5px solid #ddd;border-radius:8px;overflow:hidden;background:#fff;}
     .list-item{display:flex;align-items:center;padding:10px 14px;border-bottom:1px solid #eee;gap:8px;font-size:14px;}
@@ -123,9 +139,11 @@
 
   <div class="form-group">
     <label>BPCS Code</label>
-    <select id="bpcsSelect" onchange="onBpcsChange()">
-      <option value="">-- 제품 선택 --</option>
-    </select>
+    <div class="bpcs-wrap" id="bpcsWrap">
+      <input type="text" class="bpcs-input" id="bpcsInput" placeholder="코드 또는 품명으로 검색" autocomplete="off"/>
+      <div class="bpcs-dropdown" id="bpcsDropdown"></div>
+      <span class="bpcs-selected" id="bpcsSelected"></span>
+    </div>
   </div>
 
   <div class="form-group">
@@ -274,6 +292,7 @@ async function init() {
   document.getElementById('dateInput').value = new Date().toISOString().slice(0, 10);
 
   await refreshProductSelect();
+  initBpcsSearch();
   await checkAlertBanner();
 }
 
@@ -302,22 +321,80 @@ function switchTab(name) {
 }
 
 // ═══════════════════════════════════════════════════════
-// Products
+// BPCS Search Dropdown
 // ═══════════════════════════════════════════════════════
+let selectedBpcsCode = '';
+let bpcsProducts     = [];
+let ddActiveIdx      = -1;
+
 async function refreshProductSelect() {
-  const products = await dbGetAll('products');
-  const sel = document.getElementById('bpcsSelect');
-  const cur = sel.value;
-  sel.innerHTML = '<option value="">-- 제품 선택 --</option>';
-  products.sort((a, b) => a.code.localeCompare(b.code));
-  products.forEach(p => {
-    const o = document.createElement('option');
-    o.value = p.code;
-    o.textContent = `${p.code}  ·  ${p.name}`;
-    sel.appendChild(o);
-  });
-  if (cur) sel.value = cur;
+  bpcsProducts = await dbGetAll('products');
+  bpcsProducts.sort((a, b) => a.code.localeCompare(b.code));
 }
+
+function initBpcsSearch() {
+  const input = document.getElementById('bpcsInput');
+  const dd    = document.getElementById('bpcsDropdown');
+  input.addEventListener('input', () => {
+    selectedBpcsCode = '';
+    document.getElementById('bpcsSelected').classList.remove('show');
+    renderBpcsDD(input.value.trim());
+  });
+  input.addEventListener('focus', () => renderBpcsDD(input.value.trim()));
+  input.addEventListener('keydown', e => {
+    const items = dd.querySelectorAll('.bpcs-item');
+    if (e.key === 'ArrowDown')   { e.preventDefault(); ddActiveIdx = Math.min(ddActiveIdx+1, items.length-1); updDD(items); }
+    else if (e.key === 'ArrowUp')    { e.preventDefault(); ddActiveIdx = Math.max(ddActiveIdx-1, 0); updDD(items); }
+    else if (e.key === 'Enter')      { e.preventDefault(); if (ddActiveIdx >= 0 && items[ddActiveIdx]) items[ddActiveIdx].click(); }
+    else if (e.key === 'Escape')     { dd.classList.remove('open'); }
+  });
+  document.addEventListener('click', e => {
+    if (!document.getElementById('bpcsWrap').contains(e.target)) dd.classList.remove('open');
+  });
+}
+
+function updDD(items) {
+  items.forEach((el, i) => el.classList.toggle('hi', i === ddActiveIdx));
+  if (items[ddActiveIdx]) items[ddActiveIdx].scrollIntoView({ block: 'nearest' });
+}
+
+function hlText(text, q) {
+  if (!q) return text;
+  return text.replace(new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi'), '<span class="hl">$1</span>');
+}
+
+function renderBpcsDD(q) {
+  const dd = document.getElementById('bpcsDropdown');
+  ddActiveIdx = -1;
+  const list = q
+    ? bpcsProducts.filter(p => p.code.toLowerCase().includes(q.toLowerCase()) || p.name.toLowerCase().includes(q.toLowerCase())).slice(0, 60)
+    : bpcsProducts.slice(0, 60);
+  dd.innerHTML = list.length === 0
+    ? '<div class="bpcs-empty">검색 결과 없음</div>'
+    : list.map(p =>
+        `<div class="bpcs-item" data-code="${p.code}" data-name="${p.name.replace(/"/g,'&quot;')}">
+          <div class="bpcs-item-code">${hlText(p.code, q)}</div>
+          <div class="bpcs-item-name">${hlText(p.name, q)}</div>
+        </div>`
+      ).join('');
+  dd.querySelectorAll('.bpcs-item').forEach(el =>
+    el.addEventListener('click', () => selectBpcs(el.dataset.code, el.dataset.name))
+  );
+  dd.classList.add('open');
+}
+
+function selectBpcs(code, name) {
+  selectedBpcsCode = code;
+  document.getElementById('bpcsInput').value = '';
+  const tag = document.getElementById('bpcsSelected');
+  tag.textContent = `${code}  ·  ${name}`;
+  tag.classList.add('show');
+  document.getElementById('bpcsDropdown').classList.remove('open');
+  onBpcsChange();
+}
+
+// ═══════════════════════════════════════════════════════
+// Products (add/delete)
 
 async function addProduct() {
   const code = document.getElementById('newCode').value.trim().toUpperCase();
@@ -411,7 +488,7 @@ async function onBpcsChange() {
 // Comparison
 // ═══════════════════════════════════════════════════════
 async function runComparison() {
-  const code = document.getElementById('bpcsSelect').value;
+  const code = selectedBpcsCode;
   document.getElementById('compareSection').style.display = 'block';
 
   // Render new images
@@ -490,7 +567,7 @@ function drawImg(canvas, src, size) {
 // Save
 // ═══════════════════════════════════════════════════════
 async function saveLabel() {
-  const code = document.getElementById('bpcsSelect').value;
+  const code = selectedBpcsCode;
   const date = document.getElementById('dateInput').value;
 
   if (!newImages.length) { alert('이미지를 업로드하세요.'); return; }
@@ -513,10 +590,14 @@ async function saveLabel() {
 
   // Reset
   newImages = [];
-  document.getElementById('uploadPreview').innerHTML = '';
-  document.getElementById('fileInput').value         = '';
+  selectedBpcsCode = '';
+  document.getElementById('uploadPreview').innerHTML  = '';
+  document.getElementById('fileInput').value          = '';
+  document.getElementById('poInput').value            = '';
+  document.getElementById('bpcsInput').value          = '';
+  document.getElementById('bpcsSelected').classList.remove('show');
   document.getElementById('compareSection').style.display = 'none';
-  document.getElementById('saveBtn').style.display   = 'none';
+  document.getElementById('saveBtn').style.display    = 'none';
   lastDiff = null;
 
   await checkAlertBanner();
